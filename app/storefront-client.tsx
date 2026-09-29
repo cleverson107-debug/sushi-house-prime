@@ -480,12 +480,19 @@ export default function Home() {
                 <div>
                   <div className="flex items-center gap-2">
                     <b className="text-2xl text-[#b87516]">
-                      {money(selected.price)}
+                      {money(
+                        (selected.price +
+                          extras.reduce(
+                            (sum, extra) => sum + extraPrice(extra),
+                            0,
+                          )) *
+                          qty,
+                      )}
                     </b>
                     {selected.oldPrice && (
                       <>
                         <span className="text-sm text-[#9e9591] line-through">
-                          {money(selected.oldPrice)}
+                          {money(selected.oldPrice * qty)}
                         </span>
                         <span className="rounded bg-emerald-50 px-2 py-1 text-xs font-extrabold text-emerald-700">
                           -
@@ -498,7 +505,9 @@ export default function Home() {
                     )}
                   </div>
                   <p className="mt-1 text-xs text-[#766b67]">
-                    Preço especial no PIX
+                    {qty > 1
+                      ? `Total para ${qty} itens no PIX`
+                      : "Preço especial no PIX"}
                   </p>
                 </div>
                 <div className="flex items-center gap-3 rounded-xl border border-[#e9e3df] bg-[#faf8f6] p-1">
@@ -936,7 +945,10 @@ function Checkout({
               const completed = index < stageIndex;
               const active = index === stageIndex;
               return (
-                <div key={step.title} className="relative flex gap-3 pb-6 last:pb-0">
+                <div
+                  key={step.title}
+                  className="relative flex gap-3 pb-6 last:pb-0"
+                >
                   {index < trackingSteps.length - 1 && (
                     <span
                       className={`absolute left-[15px] top-8 h-[calc(100%-1.25rem)] w-px ${completed ? "bg-emerald-400" : "bg-[#ddd5d0]"}`}
