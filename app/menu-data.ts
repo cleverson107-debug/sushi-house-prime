@@ -24,7 +24,7 @@ p(29,"Pratos Quentes","Yakisoba Misto","Macarrão, carne, frango e legumes ao mo
 p(31,"Porções","Camarão Crocante","Camarões empanados com molho especial.",34.9,undefined,undefined,"8"),p(32,"Porções","Hot Roll 5 Unidades","Porção pequena para completar o pedido.",9.9,undefined,undefined,"5"),
 p(33,"Molhos","Molho Tarê","Agridoce tradicional da casa.",2),p(34,"Molhos","Molho Especial House","Cremoso e levemente picante.",3),
 p(35,"Bebidas","Coca-Cola Original Lata","350 ml, gelada.",6,undefined,undefined,undefined,"/products/drinks/coca-cola-350ml.jpg"),
-p(36,"Bebidas","Coca-Cola Original 1L","Garrafa PET gelada, perfeita para compartilhar.",8.9,undefined,undefined,undefined,"/products/drinks/coca-cola-1l.jpg"),
+p(36,"Bebidas","Coca-Cola Original 1L","Garrafa PET gelada, perfeita para compartilhar.",10,undefined,undefined,undefined,"/products/drinks/coca-cola-1l.jpg"),
 p(37,"Bebidas","Crystal Água com Gás","Água mineral com gás, garrafa de 500 ml gelada.",4.5,undefined,undefined,undefined,"/products/drinks/crystal-com-gas-500ml.jpg"),
 p(39,"Bebidas","Schweppes Citrus","Refrigerante cítrico, lata de 350 ml gelada.",6.5,undefined,"REFRESCANTE",undefined,"/products/drinks/schweppes-citrus-350ml.png"),
 p(40,"Bebidas","Oi Ocha Chá Verde","Chá verde japonês ITO EN, sem açúcar, garrafa de 500 ml.",12.9,undefined,"JAPONÊS",undefined,"/products/drinks/oi-ocha-green-tea.jpg"),
