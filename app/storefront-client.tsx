@@ -14,6 +14,7 @@ import {
   ShoppingBag,
   Star,
   Store,
+  Trash2,
   Truck,
   X,
 } from "lucide-react";
@@ -619,45 +620,58 @@ export default function Home() {
                 {cart.length === 0 ? (
                   <EmptyCart />
                 ) : (
-                  <div className="space-y-2">
-                    {cart.map((i, n) => (
-                      <div
-                        key={`${i.id}-${n}`}
-                        className="rounded-xl border border-[#e5dcd7] bg-white p-3 shadow-sm"
+                  <div className="space-y-3">
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setCart([])}
+                        className="flex items-center gap-1.5 rounded-lg border border-[#efc9c3] bg-[#fff1ee] px-3 py-2 text-xs font-bold text-[#c94030] transition hover:bg-[#ffe5df]"
+                        aria-label="Limpar todos os itens do carrinho"
                       >
-                        <div className="flex gap-3">
-                          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#f15a46]/14 text-sm font-bold text-[#ff7965]">
-                            {i.quantity}x
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <b className="text-sm text-[#271b19]">{i.name}</b>
-                            {i.extras.map((e) => (
-                              <p
-                                key={e}
-                                className="mt-1 text-xs text-[#766b67]"
-                              >
-                                + {e.split("·")[0]}
+                        <Trash2 className="size-3.5" />
+                        Limpar carrinho
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      {cart.map((i, n) => (
+                        <div
+                          key={`${i.id}-${n}`}
+                          className="rounded-xl border border-[#e5dcd7] bg-white p-3 shadow-sm"
+                        >
+                          <div className="flex gap-3">
+                            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#f15a46]/14 text-sm font-bold text-[#ff7965]">
+                              {i.quantity}x
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <b className="text-sm text-[#271b19]">{i.name}</b>
+                              {i.extras.map((e) => (
+                                <p
+                                  key={e}
+                                  className="mt-1 text-xs text-[#766b67]"
+                                >
+                                  + {e.split("·")[0]}
+                                </p>
+                              ))}
+                              {i.note && (
+                                <p className="mt-1 text-xs italic text-[#766b67]">
+                                  Obs.: {i.note}
+                                </p>
+                              )}
+                              <p className="mt-2 font-bold text-[#f1c977]">
+                                {money(i.price * i.quantity)}
                               </p>
-                            ))}
-                            {i.note && (
-                              <p className="mt-1 text-xs italic text-[#766b67]">
-                                Obs.: {i.note}
-                              </p>
-                            )}
-                            <p className="mt-2 font-bold text-[#f1c977]">
-                              {money(i.price * i.quantity)}
-                            </p>
+                            </div>
+                            <button
+                              onClick={() =>
+                                setCart((c) => c.filter((_, x) => x !== n))
+                              }
+                            >
+                              <X className="size-4 text-[#7d898f]" />
+                            </button>
                           </div>
-                          <button
-                            onClick={() =>
-                              setCart((c) => c.filter((_, x) => x !== n))
-                            }
-                          >
-                            <X className="size-4 text-[#7d898f]" />
-                          </button>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 )}
                 <div className="mt-4 rounded-2xl border border-[#e4d9d3] bg-white p-3 shadow-sm">
