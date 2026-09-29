@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   Award,
-  ChevronDown,
   ChevronRight,
   Clock3,
   Gift,
@@ -32,11 +31,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { Textarea } from "@/components/ui/textarea";
 import QRCode from "qrcode";
 import { categories, money, products, type Product } from "./menu-data";
@@ -89,7 +83,6 @@ export default function Home() {
   const [selected, setSelected] = useState<Product | null>(null);
   const [qty, setQty] = useState(1);
   const [extras, setExtras] = useState<string[]>([]);
-  const [addOns, setAddOns] = useState<Record<number, number>>({});
   const [note, setNote] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartReady, setCartReady] = useState(false);
@@ -201,17 +194,10 @@ export default function Home() {
     setSelected(p);
     setQty(1);
     setExtras([]);
-    setAddOns({});
     setNote("");
   };
   const add = () => {
     if (!selected) return;
-    const selectedAddOns = Object.entries(addOns).flatMap(([id, quantity]) => {
-      const product = products.find((item) => item.id === Number(id));
-      return product && quantity > 0
-        ? [{ ...product, quantity, extras: [] }]
-        : [];
-    });
     setCart((c) => [
       ...c,
       {
@@ -220,7 +206,6 @@ export default function Home() {
         extras,
         note: note.trim() || undefined,
       },
-      ...selectedAddOns,
     ]);
     setSelected(null);
     setCartOpen(true);
@@ -539,7 +524,6 @@ export default function Home() {
                   </div>
                 </div>
               )}
-              <AddOnTabs selected={addOns} onChange={setAddOns} />
               <ExtrasSelector
                 product={selected}
                 selected={extras}
@@ -569,13 +553,7 @@ export default function Home() {
                   {money(
                     (selected.price +
                       extras.reduce((x, e) => x + extraPrice(e), 0)) *
-                      qty +
-                      Object.entries(addOns).reduce((sum, [id, amount]) => {
-                        const product = products.find(
-                          (item) => item.id === Number(id),
-                        );
-                        return sum + (product?.price || 0) * amount;
-                      }, 0),
+                      qty,
                   )}
                 </span>
               </button>
@@ -636,11 +614,6 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
-                <CrossSell
-                  onAdd={(p) =>
-                    setCart((c) => [...c, { ...p, quantity: 1, extras: [] }])
-                  }
-                />
                 <div className="space-y-2 border-t border-white/8 py-4 text-sm">
                   <div className="flex justify-between text-[#9aa5aa]">
                     <span>Subtotal</span>
@@ -763,149 +736,6 @@ function ExtrasSelector({
     </div>
   );
 }
-function AddOnTabs({
-  selected,
-  onChange,
-}: {
-  selected: Record<number, number>;
-  onChange: (value: Record<number, number>) => void;
-}) {
-  const change = (id: number, delta: number) => {
-    const next = Math.max(0, Math.min(9, (selected[id] || 0) + delta));
-    onChange({ ...selected, [id]: next });
-  };
-  return (
-    <div>
-      <h3 className="mb-2 font-bold">Complete seu pedido</h3>
-      <p className="mb-3 text-xs text-[#766b67]">
-        Adicione bebidas ou sobremesas se desejar
-      </p>
-      <div className="space-y-2">
-        {(["Bebidas", "Sobremesas"] as const).map((category) => (
-          <AddOnSection
-            key={category}
-            title={category}
-            items={products.filter((product) => product.category === category)}
-            selected={selected}
-            onChange={change}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-function AddOnSection({
-  title,
-  items,
-  selected,
-  onChange,
-}: {
-  title: string;
-  items: Product[];
-  selected: Record<number, number>;
-  onChange: (id: number, delta: number) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const count = items.reduce((sum, item) => sum + (selected[item.id] || 0), 0);
-  return (
-    <Collapsible open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger className="flex w-full items-center justify-between rounded-xl border border-[#e9e3df] bg-[#faf8f6] px-4 py-3 text-left transition hover:border-[#f15a46]/45">
-        <span>
-          <b className="text-sm text-[#271b19]">{title}</b>
-          {count > 0 && (
-            <small className="ml-2 rounded-full bg-[#f15a46] px-2 py-0.5 font-bold text-white">
-              {count}
-            </small>
-          )}
-        </span>
-        <ChevronDown
-          className={`size-4 text-[#766b67] transition-transform ${open ? "rotate-180" : ""}`}
-        />
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <div className="mt-2 space-y-2 rounded-xl border border-[#eee8e4] bg-white p-2">
-          {items.map((item) => {
-            const amount = selected[item.id] || 0;
-            return (
-              <div
-                key={item.id}
-                className="flex items-center gap-3 rounded-lg p-2"
-              >
-                <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-[#f5f1ee]">
-                  <Image
-                    src={item.image}
-                    alt=""
-                    fill
-                    sizes="56px"
-                    className={
-                      item.category === "Bebidas"
-                        ? "object-contain p-1"
-                        : "object-cover"
-                    }
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <b className="line-clamp-1 text-sm text-[#271b19]">
-                    {item.name}
-                  </b>
-                  <span className="mt-1 block text-xs font-bold text-[#b87516]">
-                    {money(item.price)}
-                  </span>
-                </div>
-                <div className="flex shrink-0 items-center gap-1 rounded-lg border border-[#e1d8d4] p-0.5">
-                  <button
-                    type="button"
-                    onClick={() => onChange(item.id, -1)}
-                    disabled={amount === 0}
-                    aria-label={`Remover ${item.name}`}
-                    className="grid size-8 place-items-center rounded-md disabled:opacity-30"
-                  >
-                    <Minus className="size-4" />
-                  </button>
-                  <span className="w-5 text-center text-sm font-extrabold">
-                    {amount}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => onChange(item.id, 1)}
-                    aria-label={`Adicionar ${item.name}`}
-                    className="grid size-8 place-items-center rounded-md bg-[#f15a46] text-white"
-                  >
-                    <Plus className="size-4" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </CollapsibleContent>
-    </Collapsible>
-  );
-}
-function CrossSell({ onAdd }: { onAdd: (p: Product) => void }) {
-  return (
-    <div className="my-5 rounded-xl border border-[#e5bc70]/18 bg-[#e5bc70]/6 p-4">
-      <p className="text-xs font-bold uppercase tracking-widest text-[#e5bc70]">
-        Complete seu pedido
-      </p>
-      {products
-        .filter((p) => [32, 34, 36].includes(p.id))
-        .map((p) => (
-          <button
-            key={p.id}
-            onClick={() => onAdd(p)}
-            className="mt-3 flex w-full items-center justify-between text-sm"
-          >
-            <span>
-              {p.name}
-              <small className="ml-2 text-[#8a969c]">{money(p.price)}</small>
-            </span>
-            <Plus className="size-4" />
-          </button>
-        ))}
-    </div>
-  );
-}
 type PixCheckout = {
   transactionId: string;
   copyPaste: string;
@@ -922,7 +752,7 @@ function Checkout({
   cart: CartItem[];
   onBack: () => void;
 }) {
-  const pixTotal = 10;
+  const pixTotal = total;
   const [mode, setMode] = useState("delivery");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
