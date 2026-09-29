@@ -674,100 +674,102 @@ export default function Home() {
                     </div>
                   </div>
                 )}
-                <div className="mt-4 rounded-2xl border border-[#e4d9d3] bg-white p-3 shadow-sm">
-                  <div className="mb-3 px-1">
-                    <h3 className="font-serif text-lg font-bold text-[#271b19]">
-                      Complete seu pedido
-                    </h3>
-                    <p className="mt-0.5 text-xs text-[#766b67]">
-                      Adicione algo extra se desejar
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    {cartUpsellGroups.map((group) => {
-                      const expanded = openUpsell === group.label;
-                      return (
-                        <div
-                          key={group.label}
-                          className="overflow-hidden rounded-xl border border-white/10 bg-[#111c23]"
-                        >
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setOpenUpsell(expanded ? null : group.label)
-                            }
-                            className="flex w-full items-center gap-3 px-3 py-3 text-left"
-                            aria-expanded={expanded}
+                {cart.length > 0 && (
+                  <div className="mt-4 rounded-2xl border border-[#e4d9d3] bg-white p-3 shadow-sm">
+                    <div className="mb-3 px-1">
+                      <h3 className="font-serif text-lg font-bold text-[#271b19]">
+                        Complete seu pedido
+                      </h3>
+                      <p className="mt-0.5 text-xs text-[#766b67]">
+                        Adicione algo extra se desejar
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      {cartUpsellGroups.map((group) => {
+                        const expanded = openUpsell === group.label;
+                        return (
+                          <div
+                            key={group.label}
+                            className="overflow-hidden rounded-xl border border-white/10 bg-[#111c23]"
                           >
-                            <span className="min-w-0 flex-1">
-                              <b className="block text-sm text-white">
-                                {group.label}
-                              </b>
-                              <span className="text-[11px] text-[#89969c]">
-                                {group.description}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setOpenUpsell(expanded ? null : group.label)
+                              }
+                              className="flex w-full items-center gap-3 px-3 py-3 text-left"
+                              aria-expanded={expanded}
+                            >
+                              <span className="min-w-0 flex-1">
+                                <b className="block text-sm text-white">
+                                  {group.label}
+                                </b>
+                                <span className="text-[11px] text-[#89969c]">
+                                  {group.description}
+                                </span>
                               </span>
-                            </span>
-                            <span className="text-[11px] font-bold text-[#f1c977]">
-                              {group.items.length} opções
-                            </span>
-                            <ChevronRight
-                              className={`size-4 text-[#89969c] transition-transform ${expanded ? "rotate-90" : ""}`}
-                            />
-                          </button>
-                          {expanded && (
-                            <div className="space-y-2 border-t border-white/8 p-2">
-                              {group.items.map((product) => {
-                                const amount = cart
-                                  .filter((item) => item.id === product.id)
-                                  .reduce(
-                                    (sum, item) => sum + item.quantity,
-                                    0,
-                                  );
-                                return (
-                                  <div
-                                    key={product.id}
-                                    className="flex items-center gap-3 rounded-lg border border-[#e8dfda] bg-white p-2 shadow-sm"
-                                  >
-                                    <img
-                                      src={product.image.replace(
-                                        "/products/optimized/",
-                                        "/products/thumbs/",
-                                      )}
-                                      alt=""
-                                      loading="lazy"
-                                      className={`size-12 shrink-0 rounded-lg bg-white ${product.category === "Bebidas" ? "object-contain p-1" : "object-cover"}`}
-                                    />
-                                    <span className="min-w-0 flex-1">
-                                      <b className="line-clamp-1 block text-xs text-[#271b19]">
-                                        {product.name}
-                                      </b>
-                                      <span className="mt-1 block text-xs font-bold text-[#b87516]">
-                                        {money(product.price)}
-                                      </span>
-                                    </span>
-                                    {amount > 0 && (
-                                      <span className="text-xs font-bold text-emerald-400">
-                                        {amount}x
-                                      </span>
-                                    )}
-                                    <button
-                                      type="button"
-                                      onClick={() => addQuickItem(product)}
-                                      aria-label={`Adicionar ${product.name}`}
-                                      className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#f15a46] text-white transition hover:bg-[#d94a38]"
+                              <span className="text-[11px] font-bold text-[#f1c977]">
+                                {group.items.length} opções
+                              </span>
+                              <ChevronRight
+                                className={`size-4 text-[#89969c] transition-transform ${expanded ? "rotate-90" : ""}`}
+                              />
+                            </button>
+                            {expanded && (
+                              <div className="space-y-2 border-t border-white/8 p-2">
+                                {group.items.map((product) => {
+                                  const amount = cart
+                                    .filter((item) => item.id === product.id)
+                                    .reduce(
+                                      (sum, item) => sum + item.quantity,
+                                      0,
+                                    );
+                                  return (
+                                    <div
+                                      key={product.id}
+                                      className="flex items-center gap-3 rounded-lg border border-[#e8dfda] bg-white p-2 shadow-sm"
                                     >
-                                      <Plus className="size-4" />
-                                    </button>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                                      <img
+                                        src={product.image.replace(
+                                          "/products/optimized/",
+                                          "/products/thumbs/",
+                                        )}
+                                        alt=""
+                                        loading="lazy"
+                                        className={`size-12 shrink-0 rounded-lg bg-white ${product.category === "Bebidas" ? "object-contain p-1" : "object-cover"}`}
+                                      />
+                                      <span className="min-w-0 flex-1">
+                                        <b className="line-clamp-1 block text-xs text-[#271b19]">
+                                          {product.name}
+                                        </b>
+                                        <span className="mt-1 block text-xs font-bold text-[#b87516]">
+                                          {money(product.price)}
+                                        </span>
+                                      </span>
+                                      {amount > 0 && (
+                                        <span className="text-xs font-bold text-emerald-400">
+                                          {amount}x
+                                        </span>
+                                      )}
+                                      <button
+                                        type="button"
+                                        onClick={() => addQuickItem(product)}
+                                        aria-label={`Adicionar ${product.name}`}
+                                        className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#f15a46] text-white transition hover:bg-[#d94a38]"
+                                      >
+                                        <Plus className="size-4" />
+                                      </button>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
+                )}
                 {cart.length > 0 && (
                   <>
                     <div className="space-y-2 border-t border-[#e4d9d3] py-4 text-sm">
