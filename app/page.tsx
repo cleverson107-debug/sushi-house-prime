@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   Award,
+  ChevronDown,
   ChevronRight,
   Clock3,
   Gift,
@@ -15,7 +16,6 @@ import {
   Star,
   Store,
   Truck,
-  UtensilsCrossed,
   X,
 } from "lucide-react";
 import {
@@ -32,14 +32,17 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Textarea } from "@/components/ui/textarea";
 import QRCode from "qrcode";
 import { categories, money, products, type Product } from "./menu-data";
 type CartItem = Product & {
   quantity: number;
   extras: string[];
-  kit?: string;
   note?: string;
 };
 const extraPrice = (e: string) =>
@@ -86,7 +89,7 @@ export default function Home() {
   const [selected, setSelected] = useState<Product | null>(null);
   const [qty, setQty] = useState(1);
   const [extras, setExtras] = useState<string[]>([]);
-  const [kit, setKit] = useState("Kit 1");
+  const [addOns, setAddOns] = useState<Record<number, number>>({});
   const [note, setNote] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartReady, setCartReady] = useState(false);
@@ -96,11 +99,11 @@ export default function Home() {
   const [locating, setLocating] = useState(false);
   useEffect(() => {
     const schema = localStorage.getItem("sushi-house-cart-schema");
-    if (schema !== "3") {
+    if (schema !== "4") {
       localStorage.removeItem("sushi-house-cart");
       localStorage.removeItem("sushi-house-cart-v2");
       localStorage.removeItem("sushi-house-cart-v3");
-      localStorage.setItem("sushi-house-cart-schema", "3");
+      localStorage.setItem("sushi-house-cart-schema", "4");
       setCart([]);
     } else {
       const saved = localStorage.getItem("sushi-house-cart-v3");
@@ -198,23 +201,26 @@ export default function Home() {
     setSelected(p);
     setQty(1);
     setExtras([]);
-    setKit("Kit 1");
+    setAddOns({});
     setNote("");
   };
   const add = () => {
     if (!selected) return;
-    const hasKit = ["Ofertas", "Combos", "Combinados", "Barcas"].includes(
-      selected.category,
-    );
+    const selectedAddOns = Object.entries(addOns).flatMap(([id, quantity]) => {
+      const product = products.find((item) => item.id === Number(id));
+      return product && quantity > 0
+        ? [{ ...product, quantity, extras: [] }]
+        : [];
+    });
     setCart((c) => [
       ...c,
       {
         ...selected,
         quantity: qty,
         extras,
-        kit: hasKit ? kit : undefined,
         note: note.trim() || undefined,
       },
+      ...selectedAddOns,
     ]);
     setSelected(null);
     setCartOpen(true);
@@ -533,9 +539,7 @@ export default function Home() {
                   </div>
                 </div>
               )}
-              {["Ofertas", "Combos", "Combinados", "Barcas"].includes(
-                selected.category,
-              ) && <KitSelector value={kit} onChange={setKit} />}
+              <AddOnTabs selected={addOns} onChange={setAddOns} />
               <ExtrasSelector
                 product={selected}
                 selected={extras}
@@ -565,7 +569,13 @@ export default function Home() {
                   {money(
                     (selected.price +
                       extras.reduce((x, e) => x + extraPrice(e), 0)) *
-                      qty,
+                      qty +
+                      Object.entries(addOns).reduce((sum, [id, amount]) => {
+                        const product = products.find(
+                          (item) => item.id === Number(id),
+                        );
+                        return sum + (product?.price || 0) * amount;
+                      }, 0),
                   )}
                 </span>
               </button>
@@ -601,12 +611,6 @@ export default function Home() {
                         </span>
                         <div className="min-w-0 flex-1">
                           <b className="text-sm">{i.name}</b>
-                          {i.kit && (
-                            <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-[#b87516]">
-                              <UtensilsCrossed className="size-3" />
-                              {i.kit} · cortesia da casa
-                            </p>
-                          )}
                           {i.extras.map((e) => (
                             <p key={e} className="mt-1 text-xs text-[#89969c]">
                               + {e.split("·")[0]}
@@ -759,49 +763,123 @@ function ExtrasSelector({
     </div>
   );
 }
-function KitSelector({
-  value,
+function AddOnTabs({
+  selected,
   onChange,
 }: {
-  value: string;
-  onChange: (value: string) => void;
+  selected: Record<number, number>;
+  onChange: (value: Record<number, number>) => void;
 }) {
-  const kits = [
-    ["Kit 1", "1 hashi · 2 shoyus · 2 teriyakis"],
-    ["Kit 2", "2 hashis · 4 shoyus · 4 teriyakis"],
-    ["Kit 3", "4 hashis · 6 shoyus · 8 teriyakis"],
-  ];
+  const change = (id: number, delta: number) => {
+    const next = Math.max(0, Math.min(9, (selected[id] || 0) + delta));
+    onChange({ ...selected, [id]: next });
+  };
   return (
-    <div className="rounded-2xl border border-[#eadfd8] bg-[#fffaf5] p-4">
-      <div className="mb-3 flex items-start gap-2">
-        <UtensilsCrossed className="mt-0.5 size-5 text-[#c63f2f]" />
-        <div>
-          <h3 className="font-bold text-[#271b19]">
-            Escolha seu kit de acompanhamentos
-          </h3>
-          <p className="text-xs text-[#766b67]">
-            Cortesia da casa para o seu combo
-          </p>
-        </div>
-      </div>
-      <RadioGroup value={value} onValueChange={onChange}>
-        {kits.map(([name, description]) => (
-          <label
-            key={name}
-            className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition ${value === name ? "border-[#f15a46] bg-[#fff2eb] shadow-sm" : "border-[#e9e3df] bg-white"}`}
-          >
-            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#ffbd00] text-[#40120e]">
-              <UtensilsCrossed className="size-5" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <b className="block text-sm text-[#271b19]">{name}</b>
-              <small className="text-xs text-[#766b67]">{description}</small>
-            </span>
-            <RadioGroupItem value={name} aria-label={name} />
-          </label>
+    <div>
+      <h3 className="mb-2 font-bold">Complete seu pedido</h3>
+      <p className="mb-3 text-xs text-[#766b67]">
+        Adicione bebidas ou sobremesas se desejar
+      </p>
+      <div className="space-y-2">
+        {(["Bebidas", "Sobremesas"] as const).map((category) => (
+          <AddOnSection
+            key={category}
+            title={category}
+            items={products.filter((product) => product.category === category)}
+            selected={selected}
+            onChange={change}
+          />
         ))}
-      </RadioGroup>
+      </div>
     </div>
+  );
+}
+function AddOnSection({
+  title,
+  items,
+  selected,
+  onChange,
+}: {
+  title: string;
+  items: Product[];
+  selected: Record<number, number>;
+  onChange: (id: number, delta: number) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const count = items.reduce((sum, item) => sum + (selected[item.id] || 0), 0);
+  return (
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <CollapsibleTrigger className="flex w-full items-center justify-between rounded-xl border border-[#e9e3df] bg-[#faf8f6] px-4 py-3 text-left transition hover:border-[#f15a46]/45">
+        <span>
+          <b className="text-sm text-[#271b19]">{title}</b>
+          {count > 0 && (
+            <small className="ml-2 rounded-full bg-[#f15a46] px-2 py-0.5 font-bold text-white">
+              {count}
+            </small>
+          )}
+        </span>
+        <ChevronDown
+          className={`size-4 text-[#766b67] transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="mt-2 space-y-2 rounded-xl border border-[#eee8e4] bg-white p-2">
+          {items.map((item) => {
+            const amount = selected[item.id] || 0;
+            return (
+              <div
+                key={item.id}
+                className="flex items-center gap-3 rounded-lg p-2"
+              >
+                <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-[#f5f1ee]">
+                  <Image
+                    src={item.image}
+                    alt=""
+                    fill
+                    sizes="56px"
+                    className={
+                      item.category === "Bebidas"
+                        ? "object-contain p-1"
+                        : "object-cover"
+                    }
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <b className="line-clamp-1 text-sm text-[#271b19]">
+                    {item.name}
+                  </b>
+                  <span className="mt-1 block text-xs font-bold text-[#b87516]">
+                    {money(item.price)}
+                  </span>
+                </div>
+                <div className="flex shrink-0 items-center gap-1 rounded-lg border border-[#e1d8d4] p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => onChange(item.id, -1)}
+                    disabled={amount === 0}
+                    aria-label={`Remover ${item.name}`}
+                    className="grid size-8 place-items-center rounded-md disabled:opacity-30"
+                  >
+                    <Minus className="size-4" />
+                  </button>
+                  <span className="w-5 text-center text-sm font-extrabold">
+                    {amount}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onChange(item.id, 1)}
+                    aria-label={`Adicionar ${item.name}`}
+                    className="grid size-8 place-items-center rounded-md bg-[#f15a46] text-white"
+                  >
+                    <Plus className="size-4" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 function CrossSell({ onAdd }: { onAdd: (p: Product) => void }) {
