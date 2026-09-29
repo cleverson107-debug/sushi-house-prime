@@ -842,39 +842,110 @@ function Checkout({
         : elapsed < 80 * 60_000
           ? "delivery"
           : "done";
+    const stageIndex = stage === "preparing" ? 1 : stage === "delivery" ? 2 : 3;
+    const trackingSteps = [
+      {
+        title: "Pagamento confirmado",
+        description: "Recebemos o pagamento do seu pedido.",
+      },
+      {
+        title: "Pedido sendo preparado",
+        description: "Nossa cozinha está preparando tudo com cuidado.",
+      },
+      {
+        title: "Pedido enviado",
+        description: "O entregador saiu e seu pedido está a caminho.",
+      },
+      {
+        title: "Pedido entregue",
+        description: "Entrega concluída. Bom apetite!",
+      },
+    ];
     return (
-      <div className="py-10 text-center">
+      <div className="pb-10 pt-5">
         <div className="mx-auto grid size-16 place-items-center rounded-full bg-emerald-400/15 text-3xl">
           ✓
         </div>
-        <h3 className="mt-5 font-serif text-2xl font-bold">
+        <h3 className="mt-4 text-center font-serif text-2xl font-bold">
           {stage === "preparing"
             ? "Pedido sendo preparado"
             : stage === "delivery"
-              ? "Pedido saiu para entrega"
+              ? "Pedido enviado"
               : "Pedido entregue"}
         </h3>
-        <p className="mx-auto mt-3 max-w-xs text-sm leading-relaxed text-[#93a0a6]">
-          {stage === "preparing"
-            ? "Pagamento confirmado. Nossa cozinha já começou a preparar seu pedido."
-            : stage === "delivery"
-              ? "Seu pedido está a caminho. Acompanhe o telefone informado para o contato do entregador."
-              : "Esperamos que tenha aproveitado. Obrigado por pedir na Sushi House Prime!"}
+        <p className="mt-2 text-center text-sm text-[#93a0a6]">
+          Acompanhe abaixo cada etapa do seu pedido.
         </p>
-        <div className="mt-6 grid grid-cols-3 gap-2 text-xs font-bold">
-          <span className="rounded-lg bg-emerald-400/15 p-3 text-emerald-300">
-            Confirmado
-          </span>
-          <span
-            className={`rounded-lg p-3 ${stage === "preparing" ? "bg-[#f15a46]/20 text-[#ff8a76]" : "bg-emerald-400/15 text-emerald-300"}`}
-          >
-            Preparando
-          </span>
-          <span
-            className={`rounded-lg p-3 ${stage === "delivery" ? "bg-[#f15a46]/20 text-[#ff8a76]" : stage === "done" ? "bg-emerald-400/15 text-emerald-300" : "bg-white/5 text-[#657178]"}`}
-          >
-            Entrega
-          </span>
+
+        <div className="mt-6 rounded-2xl border border-[#e8dfda] bg-[#faf8f6] p-3">
+          <p className="mb-3 text-xs font-bold uppercase tracking-widest text-[#8a6a3a]">
+            Itens pagos
+          </p>
+          <div className="space-y-3">
+            {cart.map((item, index) => (
+              <div
+                key={`${item.id}-${index}`}
+                className="flex items-center gap-3 rounded-xl bg-white p-2 shadow-sm"
+              >
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="size-16 shrink-0 rounded-lg bg-white object-cover"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="line-clamp-2 text-sm font-extrabold">
+                    {item.quantity}x {item.name}
+                  </p>
+                  <p className="mt-1 text-xs text-[#766b67]">
+                    Pagamento confirmado
+                  </p>
+                </div>
+                <b className="shrink-0 text-sm text-[#b87516]">
+                  {money(item.price * item.quantity)}
+                </b>
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 flex items-center justify-between border-t border-[#e8dfda] px-1 pt-3">
+            <span className="text-sm text-[#766b67]">Total pago</span>
+            <strong className="text-lg text-[#271b19]">{money(total)}</strong>
+          </div>
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-[#e8dfda] bg-[#faf8f6] p-4">
+          <p className="mb-5 text-xs font-bold uppercase tracking-widest text-[#8a6a3a]">
+            Acompanhe seu pedido
+          </p>
+          <div>
+            {trackingSteps.map((step, index) => {
+              const completed = index < stageIndex;
+              const active = index === stageIndex;
+              return (
+                <div key={step.title} className="relative flex gap-3 pb-6 last:pb-0">
+                  {index < trackingSteps.length - 1 && (
+                    <span
+                      className={`absolute left-[15px] top-8 h-[calc(100%-1.25rem)] w-px ${completed ? "bg-emerald-400" : "bg-[#ddd5d0]"}`}
+                    />
+                  )}
+                  <span
+                    className={`relative z-10 grid size-8 shrink-0 place-items-center rounded-full border text-sm font-black ${completed ? "border-emerald-400 bg-emerald-400 text-white" : active ? "border-[#f15a46] bg-[#f15a46] text-white shadow-[0_0_0_5px_rgba(241,90,70,0.14)]" : "border-[#ddd5d0] bg-white text-[#9a908c]"}`}
+                  >
+                    {completed ? "✓" : index + 1}
+                  </span>
+                  <div className="pt-1">
+                    <p
+                      className={`text-sm font-extrabold ${active ? "text-[#d84a37]" : completed ? "text-emerald-600" : "text-[#817773]"}`}
+                    >
+                      {step.title}
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-[#766b67]">
+                      {step.description}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     );
