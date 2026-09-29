@@ -1,5 +1,5 @@
 export type Product={id:number;category:string;name:string;description:string;price:number;oldPrice?:number;badge?:string;pieces?:string;image:string};
-const p=(id:number,category:string,name:string,description:string,price:number,oldPrice?:number,badge?:string,pieces?:string,image?:string):Product=>({id,category,name,description,price,oldPrice,badge,pieces,image:image??`/products/${String(id).padStart(2,"0")}.webp`});
+const p=(id:number,category:string,name:string,description:string,price:number,oldPrice?:number,badge?:string,pieces?:string,_image?:string):Product=>({id,category,name,description,price,oldPrice,badge,pieces,image:`/products/optimized/${String(id).padStart(2,"0")}.webp`});
 export const categories=["Ofertas","Combos","Combinados","Barcas","Entradas","Temakis","Uramakis","Hossomakis","Niguiris","Sashimis","Hot Rolls","Pratos Quentes","Porções","Molhos","Bebidas","Sobremesas"];
 export const products:Product[]=[
 p(1,"Ofertas","Combo Casal Sushi House","24 peças, 2 hot rolls especiais, 2 tarês e Coca-Cola 1L.",59.9,79.9,"MAIS PEDIDO","24 + 2","/products/combos/combo-casal-coca-cola.png"),

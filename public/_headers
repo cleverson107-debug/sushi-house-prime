@@ -1,0 +1,11 @@
+/products/optimized/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/products/thumbs/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/festival-inauguracao.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/sushi-house-logo.webp
+  Cache-Control: public, max-age=31536000, immutable
