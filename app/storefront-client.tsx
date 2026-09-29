@@ -612,47 +612,52 @@ export default function Home() {
             </SheetDescription>
           </SheetHeader>
           <div className="flex-1 overflow-y-auto px-4">
-            {cart.length === 0 ? (
-              <EmptyCart />
-            ) : !checkout ? (
+            {!checkout ? (
               <>
-                <div className="space-y-2">
-                  {cart.map((i, n) => (
-                    <div
-                      key={`${i.id}-${n}`}
-                      className="rounded-xl border border-white/8 bg-white/4 p-3"
-                    >
-                      <div className="flex gap-3">
-                        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#f15a46]/14 text-sm font-bold text-[#ff7965]">
-                          {i.quantity}x
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <b className="text-sm">{i.name}</b>
-                          {i.extras.map((e) => (
-                            <p key={e} className="mt-1 text-xs text-[#89969c]">
-                              + {e.split("·")[0]}
+                {cart.length === 0 ? (
+                  <EmptyCart />
+                ) : (
+                  <div className="space-y-2">
+                    {cart.map((i, n) => (
+                      <div
+                        key={`${i.id}-${n}`}
+                        className="rounded-xl border border-white/8 bg-white/4 p-3"
+                      >
+                        <div className="flex gap-3">
+                          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#f15a46]/14 text-sm font-bold text-[#ff7965]">
+                            {i.quantity}x
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <b className="text-sm">{i.name}</b>
+                            {i.extras.map((e) => (
+                              <p
+                                key={e}
+                                className="mt-1 text-xs text-[#89969c]"
+                              >
+                                + {e.split("·")[0]}
+                              </p>
+                            ))}
+                            {i.note && (
+                              <p className="mt-1 text-xs italic text-[#766b67]">
+                                Obs.: {i.note}
+                              </p>
+                            )}
+                            <p className="mt-2 font-bold text-[#f1c977]">
+                              {money(i.price * i.quantity)}
                             </p>
-                          ))}
-                          {i.note && (
-                            <p className="mt-1 text-xs italic text-[#766b67]">
-                              Obs.: {i.note}
-                            </p>
-                          )}
-                          <p className="mt-2 font-bold text-[#f1c977]">
-                            {money(i.price * i.quantity)}
-                          </p>
+                          </div>
+                          <button
+                            onClick={() =>
+                              setCart((c) => c.filter((_, x) => x !== n))
+                            }
+                          >
+                            <X className="size-4 text-[#7d898f]" />
+                          </button>
                         </div>
-                        <button
-                          onClick={() =>
-                            setCart((c) => c.filter((_, x) => x !== n))
-                          }
-                        >
-                          <X className="size-4 text-[#7d898f]" />
-                        </button>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
                 <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.035] p-3">
                   <div className="mb-3 px-1">
                     <h3 className="font-serif text-lg font-bold text-white">
@@ -747,26 +752,30 @@ export default function Home() {
                     })}
                   </div>
                 </div>
-                <div className="space-y-2 border-t border-white/8 py-4 text-sm">
-                  <div className="flex justify-between text-[#9aa5aa]">
-                    <span>Subtotal</span>
-                    <span>{money(total)}</span>
-                  </div>
-                  <div className="flex justify-between text-emerald-400">
-                    <span>Entrega até 00h</span>
-                    <span>Grátis</span>
-                  </div>
-                  <div className="flex justify-between pt-2 text-lg font-extrabold">
-                    <span>Total no PIX</span>
-                    <span>{money(total)}</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setCheckout(true)}
-                  className="mb-5 h-13 w-full rounded-xl bg-[#f15a46] font-extrabold"
-                >
-                  CONTINUAR PARA ENTREGA
-                </button>
+                {cart.length > 0 && (
+                  <>
+                    <div className="space-y-2 border-t border-white/8 py-4 text-sm">
+                      <div className="flex justify-between text-[#9aa5aa]">
+                        <span>Subtotal</span>
+                        <span>{money(total)}</span>
+                      </div>
+                      <div className="flex justify-between text-emerald-400">
+                        <span>Entrega até 00h</span>
+                        <span>Grátis</span>
+                      </div>
+                      <div className="flex justify-between pt-2 text-lg font-extrabold">
+                        <span>Total no PIX</span>
+                        <span>{money(total)}</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setCheckout(true)}
+                      className="mb-5 h-13 w-full rounded-xl bg-[#f15a46] font-extrabold"
+                    >
+                      CONTINUAR PARA ENTREGA
+                    </button>
+                  </>
+                )}
               </>
             ) : (
               <Checkout
@@ -783,7 +792,7 @@ export default function Home() {
 }
 function EmptyCart() {
   return (
-    <div className="grid h-full place-items-center text-center">
+    <div className="grid place-items-center py-8 text-center">
       <div>
         <ShoppingBag className="mx-auto mb-3 size-9 text-[#68747a]" />
         <p className="font-bold">Seu pedido está vazio</p>
