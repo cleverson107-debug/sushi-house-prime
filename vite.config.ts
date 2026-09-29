@@ -70,6 +70,16 @@ export default defineConfig(async ({ command }) => {
         config: {
           ...localBindingConfig,
           workers_dev: true,
+          ...(command === "build"
+            ? {
+                routes: [
+                  {
+                    pattern: "sushi-house.upnexa.com.br",
+                    custom_domain: true,
+                  },
+                ],
+              }
+            : {}),
           ...(command === "serve"
             ? {
                 services: [
