@@ -603,11 +603,13 @@ export default function Home() {
       <Sheet open={cartOpen} onOpenChange={setCartOpen}>
         <SheetContent
           side="right"
-          className="w-full border-white/10 bg-[#0f171d] text-[#f8f1e6] sm:max-w-md"
+          className="w-full !border-[#e7ded9] !bg-[#faf8f6] !text-[#271b19] sm:max-w-md"
         >
           <SheetHeader>
-            <SheetTitle className="font-serif text-2xl">Seu pedido</SheetTitle>
-            <SheetDescription className="text-[#89969c]">
+            <SheetTitle className="font-serif text-2xl text-[#271b19]">
+              Seu pedido
+            </SheetTitle>
+            <SheetDescription className="text-[#766b67]">
               Revise os itens antes de continuar.
             </SheetDescription>
           </SheetHeader>
@@ -621,18 +623,18 @@ export default function Home() {
                     {cart.map((i, n) => (
                       <div
                         key={`${i.id}-${n}`}
-                        className="rounded-xl border border-white/8 bg-white/4 p-3"
+                        className="rounded-xl border border-[#e5dcd7] bg-white p-3 shadow-sm"
                       >
                         <div className="flex gap-3">
                           <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#f15a46]/14 text-sm font-bold text-[#ff7965]">
                             {i.quantity}x
                           </span>
                           <div className="min-w-0 flex-1">
-                            <b className="text-sm">{i.name}</b>
+                            <b className="text-sm text-[#271b19]">{i.name}</b>
                             {i.extras.map((e) => (
                               <p
                                 key={e}
-                                className="mt-1 text-xs text-[#89969c]"
+                                className="mt-1 text-xs text-[#766b67]"
                               >
                                 + {e.split("·")[0]}
                               </p>
@@ -658,12 +660,12 @@ export default function Home() {
                     ))}
                   </div>
                 )}
-                <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.035] p-3">
+                <div className="mt-4 rounded-2xl border border-[#e4d9d3] bg-white p-3 shadow-sm">
                   <div className="mb-3 px-1">
-                    <h3 className="font-serif text-lg font-bold text-white">
+                    <h3 className="font-serif text-lg font-bold text-[#271b19]">
                       Complete seu pedido
                     </h3>
-                    <p className="mt-0.5 text-xs text-[#89969c]">
+                    <p className="mt-0.5 text-xs text-[#766b67]">
                       Adicione algo extra se desejar
                     </p>
                   </div>
@@ -710,7 +712,7 @@ export default function Home() {
                                 return (
                                   <div
                                     key={product.id}
-                                    className="flex items-center gap-3 rounded-lg bg-white/[0.045] p-2"
+                                    className="flex items-center gap-3 rounded-lg border border-[#e8dfda] bg-white p-2 shadow-sm"
                                   >
                                     <img
                                       src={product.image.replace(
@@ -722,10 +724,10 @@ export default function Home() {
                                       className={`size-12 shrink-0 rounded-lg bg-white ${product.category === "Bebidas" ? "object-contain p-1" : "object-cover"}`}
                                     />
                                     <span className="min-w-0 flex-1">
-                                      <b className="line-clamp-1 block text-xs text-white">
+                                      <b className="line-clamp-1 block text-xs text-[#271b19]">
                                         {product.name}
                                       </b>
-                                      <span className="mt-1 block text-xs font-bold text-[#f1c977]">
+                                      <span className="mt-1 block text-xs font-bold text-[#b87516]">
                                         {money(product.price)}
                                       </span>
                                     </span>
@@ -754,8 +756,8 @@ export default function Home() {
                 </div>
                 {cart.length > 0 && (
                   <>
-                    <div className="space-y-2 border-t border-white/8 py-4 text-sm">
-                      <div className="flex justify-between text-[#9aa5aa]">
+                    <div className="space-y-2 border-t border-[#e4d9d3] py-4 text-sm">
+                      <div className="flex justify-between text-[#766b67]">
                         <span>Subtotal</span>
                         <span>{money(total)}</span>
                       </div>
@@ -763,7 +765,7 @@ export default function Home() {
                         <span>Entrega até 00h</span>
                         <span>Grátis</span>
                       </div>
-                      <div className="flex justify-between pt-2 text-lg font-extrabold">
+                      <div className="flex justify-between pt-2 text-lg font-extrabold text-[#271b19]">
                         <span>Total no PIX</span>
                         <span>{money(total)}</span>
                       </div>
@@ -795,8 +797,8 @@ function EmptyCart() {
     <div className="grid place-items-center py-8 text-center">
       <div>
         <ShoppingBag className="mx-auto mb-3 size-9 text-[#68747a]" />
-        <p className="font-bold">Seu pedido está vazio</p>
-        <p className="mt-1 text-sm text-[#829097]">
+        <p className="font-bold text-[#271b19]">Seu pedido está vazio</p>
+        <p className="mt-1 text-sm text-[#766b67]">
           Escolha seus favoritos no cardápio.
         </p>
       </div>
