@@ -21,7 +21,7 @@ p(23,"Niguiris","Niguiri Salmão","Fatia de salmão sobre arroz temperado.",19.9
 p(25,"Sashimis","Sashimi Salmão","Cortes frescos e delicados de salmão.",29.9,39.9,"OFERTA","10"),p(26,"Sashimis","Sashimi Especial","Cortes especiais com crispy de alho-poró.",39.9,undefined,undefined,"10"),
 p(27,"Hot Rolls","Hot Roll Philadelphia","Salmão, cream cheese, empanado e tarê.",19.9,27.9,"-29%","10"),p(28,"Hot Rolls","Hot Doritos","Hot crocante finalizado com nachos e tarê.",23.9,undefined,undefined,"10"),
 p(29,"Pratos Quentes","Yakisoba Misto","Macarrão, carne, frango e legumes ao molho oriental.",35.9),p(30,"Pratos Quentes","Salmão Grelhado","Salmão, gohan, legumes e molho cítrico.",45.9),
-p(31,"Porções","Camarão Crocante","Camarões empanados com molho especial.",34.9,undefined,undefined,"8"),p(32,"Porções","Hot Roll 5 Unidades","Porção pequena para completar o pedido.",9.9,undefined,undefined,"5"),
+p(31,"Porções","Camarão Crocante","Camarões empanados com molho especial.",34.9,undefined,undefined,"8"),p(32,"Porções","Hot Roll 5 Unidades","Porção pequena para completar o pedido.",10,undefined,undefined,"5"),
 p(33,"Molhos","Molho Tarê","Agridoce tradicional da casa.",2),p(34,"Molhos","Molho Especial House","Cremoso e levemente picante.",3),
 p(35,"Bebidas","Coca-Cola Original Lata","350 ml, gelada.",6,undefined,undefined,undefined,"/products/drinks/coca-cola-350ml.jpg"),
 p(36,"Bebidas","Coca-Cola Original 1L","Garrafa PET gelada, perfeita para compartilhar.",10,undefined,undefined,undefined,"/products/drinks/coca-cola-1l.jpg"),
