@@ -910,8 +910,12 @@ function Checkout({
   cart: CartItem[];
   onBack: () => void;
 }) {
-  const pixTotal = total;
   const [mode, setMode] = useState("delivery");
+  const [coupon, setCoupon] = useState("");
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [couponMessage, setCouponMessage] = useState("");
+  const couponDiscount = couponApplied && total >= 20 ? 5 : 0;
+  const pixTotal = Math.max(0, total - couponDiscount);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [pix, setPix] = useState<PixCheckout | null>(null);
@@ -1069,7 +1073,9 @@ function Checkout({
           </div>
           <div className="mt-3 flex items-center justify-between border-t border-[#e8dfda] px-1 pt-3">
             <span className="text-sm text-[#766b67]">Total pago</span>
-            <strong className="text-lg text-[#271b19]">{money(total)}</strong>
+            <strong className="text-lg text-[#271b19]">
+              {money(pixTotal)}
+            </strong>
           </div>
         </div>
 
@@ -1170,6 +1176,7 @@ function Checkout({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           total: pixTotal,
+          coupon: couponApplied ? "CUPOM5" : "",
           items: cart.map(({ id, quantity }) => ({ id, quantity })),
           customer: Object.fromEntries(form.entries()),
           mode,
@@ -1325,7 +1332,15 @@ function Checkout({
         <p className="mt-1 text-xs text-[#9ca7ac]">
           Preço especial de inauguração.
         </p>
-        <div className="mt-4 flex justify-between border-t border-white/8 pt-4 text-lg font-extrabold">
+        {couponDiscount > 0 && (
+          <div className="mt-4 flex justify-between border-t border-[#e8dfda] pt-4 text-sm font-bold text-emerald-700">
+            <span>Cupom CUPOM5</span>
+            <span>− {money(couponDiscount)}</span>
+          </div>
+        )}
+        <div
+          className={`${couponDiscount > 0 ? "mt-2" : "mt-4 border-t border-[#e8dfda] pt-4"} flex justify-between text-lg font-extrabold`}
+        >
           <span>Total</span>
           <span>{money(pixTotal)}</span>
         </div>
@@ -1335,6 +1350,59 @@ function Checkout({
           {error}
         </p>
       )}
+      <div className="mt-4 rounded-2xl border border-[#ead9a9] bg-[#fff9e9] p-4">
+        <div className="flex items-start gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-[#ffbd00] text-lg">
+            🎁
+          </span>
+          <div className="min-w-0 flex-1">
+            <b className="text-sm text-[#4b2700]">Cupom de desconto</b>
+            <p className="mt-1 text-xs leading-relaxed text-[#75613a]">
+              Ganhe R$ 5 OFF em pedidos acima de R$ 20.
+            </p>
+          </div>
+        </div>
+        <div className="mt-3 flex gap-2">
+          <input
+            value={coupon}
+            onChange={(event) => {
+              setCoupon(event.target.value.toUpperCase().slice(0, 12));
+              setCouponMessage("");
+              if (couponApplied) setCouponApplied(false);
+            }}
+            placeholder="Digite CUPOM5"
+            aria-label="Código do cupom"
+            className="min-w-0 flex-1 rounded-xl border border-[#ddcfaa] bg-white px-3 text-sm font-bold uppercase text-[#271b19] outline-none focus:border-[#f15a46]"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              if (coupon.trim().toUpperCase() !== "CUPOM5") {
+                setCouponApplied(false);
+                setCouponMessage("Cupom inválido.");
+                return;
+              }
+              if (total < 20) {
+                setCouponApplied(false);
+                setCouponMessage("O pedido precisa ter pelo menos R$ 20.");
+                return;
+              }
+              setCouponApplied(true);
+              setCouponMessage("Cupom aplicado: você economizou R$ 5!");
+            }}
+            className="h-11 shrink-0 rounded-xl bg-[#271b19] px-4 text-xs font-extrabold text-white"
+          >
+            APLICAR
+          </button>
+        </div>
+        {couponMessage && (
+          <p
+            className={`mt-2 text-xs font-bold ${couponApplied ? "text-emerald-700" : "text-[#c94030]"}`}
+          >
+            {couponMessage}
+          </p>
+        )}
+      </div>
       <button
         disabled={loading}
         className="mt-4 h-13 w-full rounded-xl bg-[#f15a46] font-extrabold text-white disabled:opacity-60"

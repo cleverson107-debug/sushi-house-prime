@@ -31,6 +31,7 @@ export async function POST(request: Request) {
       items?: CheckoutItem[];
       customer?: Customer;
       mode?: string;
+      coupon?: string;
     };
     const customer = body.customer || {};
     const requestedItems = Array.isArray(body.items)
@@ -90,7 +91,12 @@ export async function POST(request: Request) {
       (sum, item) => sum + item.unitPrice * item.quantity,
       0,
     );
-    const amount = originalAmount;
+    const couponCode = String(body.coupon || "")
+      .trim()
+      .toUpperCase();
+    const discount =
+      couponCode === "CUPOM5" && originalAmount >= 2000 ? 500 : 0;
+    const amount = originalAmount - discount;
     const externalRef = crypto.randomUUID();
     const paymentItems = items;
     const clientIp =
@@ -118,6 +124,8 @@ export async function POST(request: Request) {
       metadata: JSON.stringify({
         orderId: externalRef,
         originalAmount,
+        discount,
+        coupon: discount ? couponCode : null,
         cartItems: items,
         fulfillment: body.mode || "delivery",
       }),
