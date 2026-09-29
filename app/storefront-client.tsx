@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  Award,
   ChevronRight,
   Clock3,
   Gift,
@@ -547,23 +546,6 @@ export default function Home() {
                   </button>
                 </div>
               </div>
-              {!selected.oldPrice && (
-                <div className="flex gap-3 rounded-2xl border border-[#ead9a9] bg-[#fff9e9] p-4">
-                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-[#ffbd00] text-[#4b2700]">
-                    <Award className="size-5" />
-                  </span>
-                  <div>
-                    <b className="text-sm text-[#4b2700]">
-                      Resgate a partir de {Math.round(selected.price * 22)}{" "}
-                      pontos
-                    </b>
-                    <p className="mt-1 text-xs leading-relaxed text-[#75613a]">
-                      Adicione à sacola e solicite o resgate ao finalizar o
-                      pedido.
-                    </p>
-                  </div>
-                </div>
-              )}
               <ExtrasSelector
                 product={selected}
                 selected={extras}
