@@ -47,6 +47,25 @@ const baseExtras = [
   "Gengibre · Grátis",
   "Hashi · Grátis",
 ];
+const cartUpsellGroups = [
+  {
+    label: "Bebidas",
+    description: "Geladas para acompanhar",
+    items: products.filter((product) => product.category === "Bebidas"),
+  },
+  {
+    label: "Sobremesas",
+    description: "Um toque doce para finalizar",
+    items: products.filter((product) => product.category === "Sobremesas"),
+  },
+  {
+    label: "Extras da casa",
+    description: "Entradas, porções e molhos",
+    items: products.filter((product) =>
+      ["Entradas", "Porções", "Molhos"].includes(product.category),
+    ),
+  },
+];
 function FoodVisual({
   product,
   large = false,
@@ -90,6 +109,7 @@ export default function Home() {
   const [cartReady, setCartReady] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkout, setCheckout] = useState(false);
+  const [openUpsell, setOpenUpsell] = useState<string | null>(null);
   const [location, setLocation] = useState("Localização não definida");
   const [locating, setLocating] = useState(false);
   useEffect(() => {
@@ -211,6 +231,21 @@ export default function Home() {
     ]);
     setSelected(null);
     setCartOpen(true);
+  };
+  const addQuickItem = (product: Product) => {
+    setCart((current) => {
+      const existingIndex = current.findIndex(
+        (item) =>
+          item.id === product.id && item.extras.length === 0 && !item.note,
+      );
+      if (existingIndex < 0)
+        return [...current, { ...product, quantity: 1, extras: [] }];
+      return current.map((item, index) =>
+        index === existingIndex
+          ? { ...item, quantity: item.quantity + 1 }
+          : item,
+      );
+    });
   };
   return (
     <div className="storefront min-h-screen bg-white pb-28 text-[#271b19]">
@@ -634,6 +669,100 @@ export default function Home() {
                       </div>
                     </div>
                   ))}
+                </div>
+                <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.035] p-3">
+                  <div className="mb-3 px-1">
+                    <h3 className="font-serif text-lg font-bold text-white">
+                      Complete seu pedido
+                    </h3>
+                    <p className="mt-0.5 text-xs text-[#89969c]">
+                      Adicione algo extra se desejar
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    {cartUpsellGroups.map((group) => {
+                      const expanded = openUpsell === group.label;
+                      return (
+                        <div
+                          key={group.label}
+                          className="overflow-hidden rounded-xl border border-white/10 bg-[#111c23]"
+                        >
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setOpenUpsell(expanded ? null : group.label)
+                            }
+                            className="flex w-full items-center gap-3 px-3 py-3 text-left"
+                            aria-expanded={expanded}
+                          >
+                            <span className="min-w-0 flex-1">
+                              <b className="block text-sm text-white">
+                                {group.label}
+                              </b>
+                              <span className="text-[11px] text-[#89969c]">
+                                {group.description}
+                              </span>
+                            </span>
+                            <span className="text-[11px] font-bold text-[#f1c977]">
+                              {group.items.length} opções
+                            </span>
+                            <ChevronRight
+                              className={`size-4 text-[#89969c] transition-transform ${expanded ? "rotate-90" : ""}`}
+                            />
+                          </button>
+                          {expanded && (
+                            <div className="space-y-2 border-t border-white/8 p-2">
+                              {group.items.map((product) => {
+                                const amount = cart
+                                  .filter((item) => item.id === product.id)
+                                  .reduce(
+                                    (sum, item) => sum + item.quantity,
+                                    0,
+                                  );
+                                return (
+                                  <div
+                                    key={product.id}
+                                    className="flex items-center gap-3 rounded-lg bg-white/[0.045] p-2"
+                                  >
+                                    <img
+                                      src={product.image.replace(
+                                        "/products/optimized/",
+                                        "/products/thumbs/",
+                                      )}
+                                      alt=""
+                                      loading="lazy"
+                                      className={`size-12 shrink-0 rounded-lg bg-white ${product.category === "Bebidas" ? "object-contain p-1" : "object-cover"}`}
+                                    />
+                                    <span className="min-w-0 flex-1">
+                                      <b className="line-clamp-1 block text-xs text-white">
+                                        {product.name}
+                                      </b>
+                                      <span className="mt-1 block text-xs font-bold text-[#f1c977]">
+                                        {money(product.price)}
+                                      </span>
+                                    </span>
+                                    {amount > 0 && (
+                                      <span className="text-xs font-bold text-emerald-400">
+                                        {amount}x
+                                      </span>
+                                    )}
+                                    <button
+                                      type="button"
+                                      onClick={() => addQuickItem(product)}
+                                      aria-label={`Adicionar ${product.name}`}
+                                      className="grid size-9 shrink-0 place-items-center rounded-lg bg-[#f15a46] text-white transition hover:bg-[#d94a38]"
+                                    >
+                                      <Plus className="size-4" />
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
                 <div className="space-y-2 border-t border-white/8 py-4 text-sm">
                   <div className="flex justify-between text-[#9aa5aa]">
