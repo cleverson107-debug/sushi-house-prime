@@ -161,40 +161,23 @@ export default function Home() {
     detectLocation();
     return () => controller.abort();
   }, []);
-  const locate = () => {
-    if (!navigator.geolocation) return setLocation("Localização indisponível");
+  const locate = async () => {
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      async ({ coords }) => {
-        try {
-          const r = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.latitude}&lon=${coords.longitude}&zoom=10&accept-language=pt-BR`,
-          );
-          const d = await r.json();
-          const city =
-            d.address.city ||
-            d.address.town ||
-            d.address.municipality ||
-            "Sua região";
-          const state =
-            d.address["ISO3166-2-lvl4"]?.split("-")[1] ||
-            d.address.state_code ||
-            d.address.state ||
-            "";
-          setLocation(
-            `${city}${state ? `/${String(state).toUpperCase()}` : ""}`,
-          );
-        } catch {
-          setLocation("Localização autorizada");
-        }
-        setLocating(false);
-      },
-      () => {
-        setLocation("Toque para permitir localização");
-        setLocating(false);
-      },
-      { timeout: 8000 },
-    );
+    try {
+      const response = await fetch("/api/location", { cache: "no-store" });
+      if (!response.ok) throw new Error("Localização indisponível");
+      const data: { city: string | null; state: string | null } =
+        await response.json();
+      setLocation(
+        data.city
+          ? `${data.city}${data.state ? `/${data.state}` : ""}`
+          : "Sua região",
+      );
+    } catch {
+      setLocation("Sua região");
+    } finally {
+      setLocating(false);
+    }
   };
   const filtered = useMemo(
     () =>
