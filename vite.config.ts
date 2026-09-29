@@ -69,16 +69,7 @@ export default defineConfig(async ({ command }) => {
         inspectorPort: false,
         config: {
           ...localBindingConfig,
-          ...(command === "build"
-            ? {
-                routes: [
-                  {
-                    pattern: "sushi-house.upnexa.com",
-                    custom_domain: true,
-                  },
-                ],
-              }
-            : {}),
+          workers_dev: true,
           ...(command === "serve"
             ? {
                 services: [
