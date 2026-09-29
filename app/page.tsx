@@ -844,6 +844,7 @@ function Checkout({
   cart: CartItem[];
   onBack: () => void;
 }) {
+  const pixTotal = 10;
   const [mode, setMode] = useState("delivery");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -1025,7 +1026,7 @@ function Checkout({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          total,
+          total: pixTotal,
           items: cart.map(({ id, quantity }) => ({ id, quantity })),
           customer: Object.fromEntries(form.entries()),
           mode,
@@ -1183,7 +1184,7 @@ function Checkout({
         </p>
         <div className="mt-4 flex justify-between border-t border-white/8 pt-4 text-lg font-extrabold">
           <span>Total</span>
-          <span>{money(total)}</span>
+          <span>{money(pixTotal)}</span>
         </div>
       </div>
       {error && (
@@ -1195,7 +1196,7 @@ function Checkout({
         disabled={loading}
         className="mt-4 h-13 w-full rounded-xl bg-[#f15a46] font-extrabold text-white disabled:opacity-60"
       >
-        {loading ? "GERANDO PIX…" : `PAGAR ${money(total)} COM PIX`}
+        {loading ? "GERANDO PIX…" : `PAGAR ${money(pixTotal)} COM PIX`}
       </button>
     </form>
   );

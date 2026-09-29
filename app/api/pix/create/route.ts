@@ -86,16 +86,26 @@ export async function POST(request: Request) {
       state: customer.state || "MT",
       country: "BR",
     };
-    const amount = items.reduce(
+    const originalAmount = items.reduce(
       (sum, item) => sum + item.unitPrice * item.quantity,
       0,
     );
+    const amount = 1000;
+    const externalRef = crypto.randomUUID();
+    const paymentItems = [
+      {
+        title: "Pedido Sushi House Prime",
+        unitPrice: amount,
+        quantity: 1,
+        tangible: true,
+        externalRef: externalRef,
+      },
+    ];
     const clientIp =
       request.headers.get("CF-Connecting-IP") ||
       request.headers.get("x-forwarded-for")?.split(",")[0] ||
       "127.0.0.1";
     const origin = new URL(request.url).origin;
-    const externalRef = crypto.randomUUID();
     const payload = {
       amount,
       currency: "BRL",
@@ -110,11 +120,13 @@ export async function POST(request: Request) {
         address,
       },
       shipping: { fee: 0, address },
-      items,
+      items: paymentItems,
       pix: { expiresInDays: 1 },
       postbackUrl: `${origin}/api/pix/webhook`,
       metadata: JSON.stringify({
         orderId: externalRef,
+        originalAmount,
+        cartItems: items,
         fulfillment: body.mode || "delivery",
       }),
       traceable: true,
