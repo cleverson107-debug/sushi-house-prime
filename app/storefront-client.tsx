@@ -274,7 +274,7 @@ export default function Home() {
                     <Star className="size-3.5 fill-current" />
                     4,9
                   </span>
-                  <span className="text-[#d8c1bb]">(287 avaliações)</span>
+                  <span className="text-[#d8c1bb]">(867 avaliações)</span>
                 </div>
                 <div className="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-emerald-400">
                   <span className="size-1.5 rounded-full bg-emerald-400" />
