@@ -497,7 +497,7 @@ export default function Home() {
               SUSHI HOUSE PRIME 🍣🥢
             </div>
             <p className="mt-3">Terça a domingo · 18h às 02h</p>
-            <p className="mt-1">Entrega sempre grátis · Consulte sua região</p>
+            <p className="mt-1">Entrega grátis</p>
             <p className="mt-3">(00) 00000-0000</p>
             <p>atendimento@seudominio.com.br</p>
           </div>
@@ -837,9 +837,8 @@ export default function Home() {
                         <span>Subtotal</span>
                         <span>{money(total)}</span>
                       </div>
-                      <div className="flex justify-between text-emerald-400">
-                        <span>Entrega sempre grátis</span>
-                        <span>Grátis</span>
+                      <div className="text-emerald-400">
+                        <span>Entrega grátis</span>
                       </div>
                       <div className="flex justify-between pt-2 text-lg font-extrabold text-[#271b19]">
                         <span>Total no PIX</span>
