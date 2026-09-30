@@ -903,6 +903,7 @@ function Checkout({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [pix, setPix] = useState<PixCheckout | null>(null);
+  const [copyStatus, setCopyStatus] = useState<"" | "success" | "error">("");
   const [qrImage, setQrImage] = useState("");
   const [paidAt, setPaidAt] = useState("");
   const [now, setNow] = useState(Date.now());
@@ -946,6 +947,16 @@ function Checkout({
     const timer = window.setInterval(() => setNow(Date.now()), 30000);
     return () => window.clearInterval(timer);
   }, [paidAt]);
+  const copyPixCode = async () => {
+    if (!pix?.copyPaste) return;
+    try {
+      await navigator.clipboard.writeText(pix.copyPaste);
+      setCopyStatus("success");
+      window.setTimeout(() => setCopyStatus(""), 3500);
+    } catch {
+      setCopyStatus("error");
+    }
+  };
   const lookupCep = async (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 8);
     setCep(
@@ -1139,11 +1150,29 @@ function Checkout({
         </div>
         <button
           type="button"
-          onClick={() => navigator.clipboard.writeText(pix.copyPaste)}
-          className="mt-3 h-12 w-full rounded-xl bg-[#f15a46] font-extrabold text-white"
+          onClick={copyPixCode}
+          className={`mt-3 h-12 w-full rounded-xl font-extrabold text-white transition ${copyStatus === "success" ? "bg-emerald-600" : "bg-[#f15a46]"}`}
         >
-          COPIAR CÓDIGO PIX
+          {copyStatus === "success"
+            ? "✓ CÓDIGO PIX COPIADO"
+            : "COPIAR CÓDIGO PIX"}
         </button>
+        {copyStatus === "success" && (
+          <p
+            role="status"
+            className="mt-2 rounded-lg bg-emerald-50 p-2.5 text-sm font-bold text-emerald-700"
+          >
+            Código PIX copiado com sucesso!
+          </p>
+        )}
+        {copyStatus === "error" && (
+          <p
+            role="alert"
+            className="mt-2 rounded-lg bg-red-50 p-2.5 text-sm font-bold text-red-700"
+          >
+            Não foi possível copiar automaticamente. Selecione o código acima.
+          </p>
+        )}
         <div className="mt-4 rounded-lg bg-[#e5bc70]/8 p-3 text-sm font-bold text-[#e5bc70]">
           Aguardando confirmação do pagamento…
         </div>
