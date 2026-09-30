@@ -277,7 +277,10 @@ export default function Home() {
                   <span className="text-[#d8c1bb]">(867 avaliações)</span>
                 </div>
                 <div className="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-emerald-400">
-                  <span className="size-1.5 rounded-full bg-emerald-400" />
+                  <span className="relative flex size-2">
+                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-40 motion-reduce:animate-none" />
+                    <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
+                  </span>
                   Aberto agora
                 </div>
                 <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[10px] font-bold text-[#e1ccc6] sm:text-[11px]">
