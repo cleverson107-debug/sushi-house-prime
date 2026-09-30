@@ -91,6 +91,11 @@ export async function POST(request: Request) {
       (sum, item) => sum + item.unitPrice * item.quantity,
       0,
     );
+    if (originalAmount < 1000)
+      return Response.json(
+        { error: "O valor mínimo para pedidos é R$ 10,00." },
+        { status: 400 },
+      );
     const couponCode = String(body.coupon || "")
       .trim()
       .toUpperCase();

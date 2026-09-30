@@ -194,6 +194,8 @@ export default function Home() {
       (i.price + i.extras.reduce((x, e) => x + extraPrice(e), 0)) * i.quantity,
     0,
   );
+  const minimumOrder = 10;
+  const amountMissingForMinimum = Math.max(0, minimumOrder - total);
   const count = cart.reduce((s, i) => s + i.quantity, 0);
   const openProduct = (p: Product) => {
     setSelected(p);
@@ -768,11 +770,25 @@ export default function Home() {
                         <span>{money(total)}</span>
                       </div>
                     </div>
+                    {total < minimumOrder && (
+                      <p
+                        role="alert"
+                        className="mb-3 rounded-xl border border-[#efc9c3] bg-[#fff1ee] p-3 text-center text-sm font-bold text-[#c94030]"
+                      >
+                        O valor mínimo para pedidos é R$ 10,00. Adicione mais{" "}
+                        {money(amountMissingForMinimum)} para continuar.
+                      </p>
+                    )}
                     <button
-                      onClick={() => setCheckout(true)}
-                      className="mb-5 h-13 w-full rounded-xl bg-[#f15a46] font-extrabold"
+                      onClick={() => {
+                        if (total >= minimumOrder) setCheckout(true);
+                      }}
+                      disabled={total < minimumOrder}
+                      className="mb-5 h-13 w-full rounded-xl bg-[#f15a46] font-extrabold text-white disabled:cursor-not-allowed disabled:bg-[#d8cfcb] disabled:text-[#766b67]"
                     >
-                      CONTINUAR PARA ENTREGA
+                      {total < minimumOrder
+                        ? `PEDIDO MÍNIMO R$ 10,00`
+                        : "CONTINUAR PARA ENTREGA"}
                     </button>
                   </>
                 )}
