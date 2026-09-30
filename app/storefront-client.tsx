@@ -440,18 +440,91 @@ export default function Home() {
           </div>
         )}
       </main>
-      <footer className="border-t border-[#eee8e4] bg-[#faf8f6] px-4 pb-32 pt-10 text-center text-sm text-[#766b67]">
-        <div className="mb-3 font-serif text-lg font-bold text-[#271b19]">
-          SUSHI HOUSE
+      <section className="border-t border-[#eee8e4] bg-white px-4 py-10">
+        <div className="mx-auto max-w-3xl">
+          <p className="text-center text-xs font-bold uppercase tracking-[.16em] text-[#b77a20]">
+            Tire suas dúvidas
+          </p>
+          <h2 className="mt-1 text-center font-serif text-2xl font-bold text-[#271b19]">
+            Perguntas frequentes
+          </h2>
+          <div className="mt-6 space-y-2">
+            {[
+              [
+                "Qual é o prazo de entrega?",
+                "O prazo médio é de 30 a 45 minutos e pode variar conforme a região e o movimento da casa.",
+              ],
+              [
+                "Quais formas de pagamento são aceitas?",
+                "O pagamento online é realizado via PIX, com confirmação automática após a aprovação.",
+              ],
+              [
+                "Posso incluir observações no pedido?",
+                "Sim. Na tela de cada produto você pode informar preferências e observações para o preparo.",
+              ],
+              [
+                "Como acompanho meu pedido?",
+                "Após a confirmação do pagamento, o andamento aparece em etapas: pagamento confirmado, em preparo e saiu para entrega.",
+              ],
+              [
+                "O pedido possui valor mínimo?",
+                "Sim. O valor mínimo para concluir um pedido é de R$ 10,00.",
+              ],
+            ].map(([question, answer]) => (
+              <details
+                key={question}
+                className="group rounded-xl border border-[#e9e1dc] bg-[#faf8f6] px-4"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-sm font-bold text-[#271b19]">
+                  {question}
+                  <Plus className="size-4 shrink-0 text-[#b87516] transition group-open:rotate-45" />
+                </summary>
+                <p className="border-t border-[#e9e1dc] pb-4 pt-3 text-sm leading-relaxed text-[#766b67]">
+                  {answer}
+                </p>
+              </details>
+            ))}
+          </div>
         </div>
-        <p>Terça a domingo · 18h às 02h</p>
-        <p className="mt-1">Entrega grátis até 00h · Consulte sua região</p>
-        <Link
-          href="/admin"
-          className="mt-5 inline-block text-xs underline underline-offset-4"
-        >
-          Acessar administração
-        </Link>
+      </section>
+      <footer className="border-t border-[#eee8e4] bg-[#faf8f6] px-4 pb-32 pt-10 text-sm text-[#766b67]">
+        <div className="mx-auto grid max-w-3xl gap-7 sm:grid-cols-2">
+          <div>
+            <div className="font-serif text-lg font-bold text-[#271b19]">
+              SUSHI HOUSE PRIME 🍣🥢
+            </div>
+            <p className="mt-3">Terça a domingo · 18h às 02h</p>
+            <p className="mt-1">Entrega grátis até 00h · Consulte sua região</p>
+            <p className="mt-3">(00) 00000-0000</p>
+            <p>atendimento@seudominio.com.br</p>
+          </div>
+          <div className="rounded-xl border border-[#e6ddd8] bg-white p-4">
+            <div className="flex items-center justify-between gap-3">
+              <b className="text-[#271b19]">Dados jurídicos</b>
+              <span className="rounded-full bg-[#fff1ee] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-[#c94030]">
+                Demonstrativo
+              </span>
+            </div>
+            <p className="mt-3">Sushi House Prime Restaurante Ltda.</p>
+            <p>CNPJ: 00.000.000/0001-00</p>
+            <p>Av. Exemplo, 000 · Centro · Cidade/UF</p>
+            <p className="mt-3 text-xs leading-relaxed text-[#928783]">
+              Informações ilustrativas para apresentação. Razão social, CNPJ,
+              endereço, telefone, e-mail, horários e textos podem ser alterados.
+            </p>
+          </div>
+        </div>
+        <div className="mx-auto mt-7 max-w-3xl border-t border-[#e6ddd8] pt-5 text-center">
+          <p className="text-xs">
+            © 2026 Sushi House Prime · Todos os direitos reservados
+          </p>
+          <Link
+            href="/admin"
+            className="mt-3 inline-block text-xs underline underline-offset-4"
+          >
+            Acessar administração
+          </Link>
+        </div>
       </footer>
       {count > 0 && (
         <button
