@@ -4,7 +4,7 @@ import sharp from "sharp";
 import { products } from "../app/menu-data.ts";
 
 const API_URL = "https://api-gateway.umbrellapag.com/api/user/products";
-const SITE_URL = "https://sushi-house.upnexa.com.br";
+const SITE_URL = "https://delivey-sushi-house.upnexa.com.br";
 const root = path.resolve(import.meta.dirname, "..");
 
 async function getApiKey() {
