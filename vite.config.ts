@@ -74,7 +74,7 @@ export default defineConfig(async ({ command }) => {
             ? {
                 routes: [
                   {
-                    pattern: "delivey-sushi-house.upnexa.com.br",
+                    pattern: "delivery-sushi-house.upnexa.com.br",
                     custom_domain: true,
                   },
                 ],
