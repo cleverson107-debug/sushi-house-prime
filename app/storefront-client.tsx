@@ -114,11 +114,11 @@ export default function Home() {
   const [locating, setLocating] = useState(false);
   useEffect(() => {
     const schema = localStorage.getItem("sushi-house-cart-schema");
-    if (schema !== "4") {
+    if (schema !== "5") {
       localStorage.removeItem("sushi-house-cart");
       localStorage.removeItem("sushi-house-cart-v2");
       localStorage.removeItem("sushi-house-cart-v3");
-      localStorage.setItem("sushi-house-cart-schema", "4");
+      localStorage.setItem("sushi-house-cart-schema", "5");
       setCart([]);
     } else {
       const saved = localStorage.getItem("sushi-house-cart-v3");
@@ -427,6 +427,11 @@ export default function Home() {
                         <span className="text-base font-extrabold text-[#b87516]">
                           {money(p.price)}
                         </span>
+                        {p.oldPrice && (
+                          <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-extrabold text-emerald-700">
+                            -{Math.round((1 - p.price / p.oldPrice) * 100)}%
+                          </span>
+                        )}
                       </div>
                     </div>
                     <FoodVisual product={p} />
