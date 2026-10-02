@@ -561,13 +561,13 @@ export default function Home() {
 
           <div className="mt-6 border-t border-[#3b302c] pt-6 text-xs leading-relaxed text-[#948783]">
             <p>Sushi House Prime Restaurante Ltda.</p>
-            <p>CNPJ demonstrativo: 00.000.000/0001-00</p>
-            <p>Av. Exemplo, 000 · Centro · Cidade/UF</p>
+            <p>CNPJ: 13.048.953/0001-18</p>
+            <p>Av. Nove de Maio, 1485 · Centro · {location}</p>
             <p className="mt-4">
               SUSHI HOUSE PRIME | Todos os direitos reservados © 2026
             </p>
             <p className="mt-1 text-[10px] text-[#746965]">
-              Dados jurídicos e contatos ilustrativos para apresentação.
+              Informações institucionais e canais de atendimento.
             </p>
             <Link
               href="/admin"
