@@ -511,7 +511,7 @@ export const products: Product[] = [
     "Porções",
     "Hot Roll 5 Unidades",
     "Porção pequena para completar o pedido.",
-    10,
+    7,
     undefined,
     undefined,
     "5",
