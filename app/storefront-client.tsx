@@ -537,10 +537,10 @@ export default function Home() {
           </div>
 
           <a
-            href="mailto:atendimento@seudominio.com.br"
+            href="mailto:sushihouseprime@outlook.com"
             className="mt-6 inline-flex font-bold text-[#f2a900] transition hover:text-[#ffc94e]"
           >
-            ✉ atendimento@seudominio.com.br
+            ✉ sushihouseprime@outlook.com
           </a>
           <nav
             aria-label="Links institucionais"
@@ -552,7 +552,7 @@ export default function Home() {
               Dúvidas frequentes
             </a>
             <a
-              href="mailto:atendimento@seudominio.com.br"
+              href="mailto:sushihouseprime@outlook.com"
               className="hover:text-[#f2a900]"
             >
               Contato
