@@ -157,11 +157,11 @@ export default function Home() {
   const [locating, setLocating] = useState(false);
   useEffect(() => {
     const schema = localStorage.getItem("sushi-house-cart-schema");
-    if (schema !== "7") {
+    if (schema !== "8") {
       localStorage.removeItem("sushi-house-cart");
       localStorage.removeItem("sushi-house-cart-v2");
       localStorage.removeItem("sushi-house-cart-v3");
-      localStorage.setItem("sushi-house-cart-schema", "7");
+      localStorage.setItem("sushi-house-cart-schema", "8");
       setCart([]);
     } else {
       const saved = localStorage.getItem("sushi-house-cart-v3");
@@ -384,7 +384,7 @@ export default function Home() {
               Festival de Inauguração
             </h1>
             <div className="mt-4 inline-flex whitespace-nowrap rounded-lg border border-[#ffd36f]/35 bg-black/25 px-2.5 py-2 text-[10px] font-bold text-[#ffe6a9] sm:px-3 sm:text-xs">
-              Combo Festival: de R$ 54,90 por R$ 34,90
+              Combo Festival: de R$ 72,90 por R$ 56,89
             </div>
             <p className="mt-4 max-w-md text-sm font-medium leading-relaxed text-white/90 drop-shadow-sm">
               Combos autorais, salmão fresco e sabores da casa com condições
