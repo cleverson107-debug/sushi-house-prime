@@ -448,7 +448,10 @@ export default function Home() {
           </div>
         )}
       </main>
-      <section className="border-t border-[#eee8e4] bg-white px-4 py-10">
+      <section
+        id="faq"
+        className="border-t border-[#eee8e4] bg-white px-4 py-10"
+      >
         <div className="mx-auto max-w-3xl">
           <p className="text-center text-xs font-bold uppercase tracking-[.16em] text-[#b77a20]">
             Tire suas dúvidas
@@ -495,43 +498,84 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <footer className="border-t border-[#eee8e4] bg-[#faf8f6] px-4 pb-32 pt-10 text-sm text-[#766b67]">
-        <div className="mx-auto grid max-w-3xl gap-7 sm:grid-cols-2">
-          <div>
-            <div className="font-serif text-lg font-bold text-[#271b19]">
-              SUSHI HOUSE PRIME 🍣🥢
-            </div>
-            <p className="mt-3">Terça a domingo · 18h às 02h</p>
-            <p className="mt-1">Entrega grátis</p>
-            <p className="mt-3">(00) 00000-0000</p>
-            <p>atendimento@seudominio.com.br</p>
+      <footer className="border-t border-[#392d29] bg-[#17110f] px-4 pb-32 pt-10 text-center text-sm text-[#d8cbc6]">
+        <div className="mx-auto max-w-3xl">
+          <div className="relative mx-auto size-20 overflow-hidden rounded-full border-2 border-[#f2a900] bg-white p-1 shadow-[0_0_28px_rgba(242,169,0,.16)]">
+            <Image
+              src="/sushi-house-logo.webp"
+              alt="Logo Sushi House Prime"
+              fill
+              sizes="80px"
+              className="object-contain p-1"
+            />
           </div>
-          <div className="rounded-xl border border-[#e6ddd8] bg-white p-4">
-            <div className="flex items-center justify-between gap-3">
-              <b className="text-[#271b19]">Dados jurídicos</b>
-              <span className="rounded-full bg-[#fff1ee] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-[#c94030]">
-                Demonstrativo
+          <h2 className="mt-4 text-xl font-black text-white">
+            SUSHI HOUSE PRIME
+          </h2>
+          <p className="mt-2 text-xs leading-relaxed text-[#ddd0cb] sm:text-sm">
+            Pedidos online · Pagamento via PIX · Entrega grátis
+          </p>
+
+          <div className="mt-7 border-y border-[#3b302c] py-6">
+            <p className="text-xs text-[#c9bbb6]">Forma de pagamento:</p>
+            <span className="mt-3 inline-flex rounded-lg border border-[#554640] bg-[#241b18] px-3 py-2 text-xs font-extrabold text-white">
+              PIX
+            </span>
+            <div className="mx-auto mt-4 flex w-fit items-center gap-3 rounded-xl border border-emerald-500 bg-[#09291f] px-4 py-3 text-left shadow-[0_8px_24px_rgba(0,0,0,.24)]">
+              <span aria-hidden="true" className="text-2xl">
+                🔒
+              </span>
+              <span>
+                <span className="block text-[9px] font-bold uppercase text-emerald-300">
+                  Pagamento PIX
+                </span>
+                <b className="block text-sm leading-none text-emerald-400">
+                  100% SEGURO
+                </b>
               </span>
             </div>
-            <p className="mt-3">Sushi House Prime Restaurante Ltda.</p>
-            <p>CNPJ: 00.000.000/0001-00</p>
-            <p>Av. Exemplo, 000 · Centro · Cidade/UF</p>
-            <p className="mt-3 text-xs leading-relaxed text-[#928783]">
-              Informações ilustrativas para apresentação. Razão social, CNPJ,
-              endereço, telefone, e-mail, horários e textos podem ser alterados.
-            </p>
           </div>
-        </div>
-        <div className="mx-auto mt-7 max-w-3xl border-t border-[#e6ddd8] pt-5 text-center">
-          <p className="text-xs">
-            © 2026 Sushi House Prime · Todos os direitos reservados
-          </p>
-          <Link
-            href="/admin"
-            className="mt-3 inline-block text-xs underline underline-offset-4"
+
+          <a
+            href="mailto:atendimento@seudominio.com.br"
+            className="mt-6 inline-flex font-bold text-[#f2a900] transition hover:text-[#ffc94e]"
           >
-            Acessar administração
-          </Link>
+            ✉ atendimento@seudominio.com.br
+          </a>
+          <nav
+            aria-label="Links institucionais"
+            className="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-white"
+          >
+            <span>Termos de uso</span>
+            <span>Política de privacidade</span>
+            <a href="#faq" className="hover:text-[#f2a900]">
+              Dúvidas frequentes
+            </a>
+            <a
+              href="mailto:atendimento@seudominio.com.br"
+              className="hover:text-[#f2a900]"
+            >
+              Contato
+            </a>
+          </nav>
+
+          <div className="mt-6 border-t border-[#3b302c] pt-6 text-xs leading-relaxed text-[#948783]">
+            <p>Sushi House Prime Restaurante Ltda.</p>
+            <p>CNPJ demonstrativo: 00.000.000/0001-00</p>
+            <p>Av. Exemplo, 000 · Centro · Cidade/UF</p>
+            <p className="mt-4">
+              SUSHI HOUSE PRIME | Todos os direitos reservados © 2026
+            </p>
+            <p className="mt-1 text-[10px] text-[#746965]">
+              Dados jurídicos e contatos ilustrativos para apresentação.
+            </p>
+            <Link
+              href="/admin"
+              className="mt-4 inline-block text-[10px] underline underline-offset-4"
+            >
+              Administração
+            </Link>
+          </div>
         </div>
       </footer>
       {count > 0 && (
