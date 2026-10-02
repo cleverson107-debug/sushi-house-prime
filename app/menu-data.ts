@@ -139,10 +139,10 @@ export const products: Product[] = [
     "Noodles e Lámen",
     "Yakisoba Misto da Casa",
     "Macarrão salteado com carne, frango, legumes frescos e molho oriental. Serve 1 pessoa.",
-    19.89,
-    27.9,
+    25.89,
+    37.9,
     "PREÇO DE ESTREIA",
-    "1 pessoa",
+    "500 g · Serve 1 pessoa",
   ),
   p(
     51,
@@ -152,7 +152,7 @@ export const products: Product[] = [
     22.89,
     29.9,
     "CLÁSSICO JAPONÊS",
-    "1 pessoa",
+    "500 g · Serve 1 pessoa",
   ),
   p(
     52,
@@ -162,7 +162,7 @@ export const products: Product[] = [
     26.89,
     34.9,
     "MAIS CREMOSO",
-    "Até 2 pessoas",
+    "800 g · Serve até 2 pessoas",
   ),
   p(
     53,
@@ -172,7 +172,7 @@ export const products: Product[] = [
     32.89,
     42.9,
     "PICANTE",
-    "Até 2 pessoas",
+    "800 g · Serve até 2 pessoas",
   ),
   p(
     54,
@@ -182,7 +182,7 @@ export const products: Product[] = [
     44.89,
     59.9,
     "PARA COMPARTILHAR",
-    "Até 4 pessoas",
+    "1,5 kg · Serve até 4 pessoas",
   ),
   p(
     60,
@@ -192,7 +192,7 @@ export const products: Product[] = [
     49.89,
     64.9,
     "3 SABORES",
-    "Até 3 pessoas",
+    "3 porções de 400 g · Serve até 3 pessoas",
   ),
   p(
     5,

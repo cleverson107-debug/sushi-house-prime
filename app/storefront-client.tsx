@@ -40,6 +40,49 @@ type CartItem = Product & {
 };
 const extraPrice = (e: string) =>
   Number(e.match(/R\$\s*([\d,]+)/)?.[1].replace(",", ".") || 0);
+const portionOverrides: Record<number, string> = {
+  12: "180 g · Serve 1 pessoa",
+  13: "6 peças · Serve 1–2 pessoas",
+  14: "250 g · Serve 1–2 pessoas",
+  15: "1 unidade · Aproximadamente 180 g",
+  16: "1 unidade · Aproximadamente 180 g",
+  17: "1 unidade · Aproximadamente 180 g",
+  29: "500 g · Serve 1–2 pessoas",
+  30: "450 g · Serve 1 pessoa",
+  33: "Pote de 30 ml",
+  34: "Pote de 30 ml",
+  35: "Lata de 350 ml",
+  36: "Garrafa de 1 litro",
+  37: "Garrafa de 500 ml",
+  39: "Lata de 350 ml",
+  40: "Garrafa de 500 ml",
+  41: "Garrafa de 500 ml",
+  44: "1 fatia · Aproximadamente 140 g",
+};
+const productPortion = (product: Product) => {
+  if (portionOverrides[product.id]) return portionOverrides[product.id];
+  const detail = product.pieces?.trim();
+  if (!detail) return "Porção individual";
+  if (/pessoa|\bg\b|kg|ml|litro|unidade|porç/i.test(detail)) return detail;
+  const count = Number.parseInt(detail, 10);
+  if (!Number.isFinite(count)) return detail;
+  const serving =
+    count <= 17
+      ? "Serve 1 pessoa"
+      : count <= 24
+        ? "Serve 1–2 pessoas"
+        : count <= 32
+          ? "Serve até 2 pessoas"
+          : count <= 50
+            ? "Serve 2–3 pessoas"
+            : count <= 70
+              ? "Serve 3–5 pessoas"
+              : count <= 100
+                ? "Serve 5–6 pessoas"
+                : "Serve 10–12 pessoas";
+  const unit = detail.includes("+") ? "itens" : "peças";
+  return `${detail} ${unit} · ${serving}`;
+};
 const baseExtras = [
   "Molho tarê artesanal · Grátis",
   "Shoyu · Grátis",
@@ -114,11 +157,11 @@ export default function Home() {
   const [locating, setLocating] = useState(false);
   useEffect(() => {
     const schema = localStorage.getItem("sushi-house-cart-schema");
-    if (schema !== "6") {
+    if (schema !== "7") {
       localStorage.removeItem("sushi-house-cart");
       localStorage.removeItem("sushi-house-cart-v2");
       localStorage.removeItem("sushi-house-cart-v3");
-      localStorage.setItem("sushi-house-cart-schema", "6");
+      localStorage.setItem("sushi-house-cart-schema", "7");
       setCart([]);
     } else {
       const saved = localStorage.getItem("sushi-house-cart-v3");
@@ -418,6 +461,9 @@ export default function Home() {
                       <p className="mt-1 line-clamp-2 text-sm leading-snug text-[#766b67]">
                         {p.description}
                       </p>
+                      <span className="mt-2 inline-flex rounded-md bg-[#f5f0ed] px-2 py-1 text-[10px] font-bold text-[#6f625e]">
+                        {productPortion(p)}
+                      </span>
                       <div className="mt-3 flex items-baseline gap-2">
                         {p.oldPrice && (
                           <span className="text-xs text-[#a39a96] line-through">
@@ -620,6 +666,9 @@ export default function Home() {
                 <DialogDescription className="text-sm leading-relaxed text-[#766b67]">
                   {selected.description}
                 </DialogDescription>
+                <span className="mt-2 w-fit rounded-lg border border-[#e8dfda] bg-[#faf8f6] px-3 py-2 text-xs font-bold text-[#6f625e]">
+                  Porção: {productPortion(selected)}
+                </span>
               </DialogHeader>
               <div className="flex items-end justify-between border-y border-[#eee8e4] py-4">
                 <div>
@@ -753,6 +802,9 @@ export default function Home() {
                             </span>
                             <div className="min-w-0 flex-1">
                               <b className="text-sm text-[#271b19]">{i.name}</b>
+                              <p className="mt-1 text-[11px] font-medium text-[#8a7d78]">
+                                {productPortion(i)}
+                              </p>
                               {i.extras.map((e) => (
                                 <p
                                   key={e}
