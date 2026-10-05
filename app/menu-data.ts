@@ -189,7 +189,7 @@ export const products: Product[] = [
     "Noodles e Lámen",
     "Trio Yakisoba",
     "Três porções para compartilhar: yakisoba misto, frango e legumes.",
-    49.89,
+    61.89,
     64.9,
     "3 SABORES",
     "3 porções de 400 g · Serve até 3 pessoas",
