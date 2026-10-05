@@ -157,11 +157,11 @@ export default function Home() {
   const [locating, setLocating] = useState(false);
   useEffect(() => {
     const schema = localStorage.getItem("sushi-house-cart-schema");
-    if (schema !== "11") {
+    if (schema !== "13") {
       localStorage.removeItem("sushi-house-cart");
       localStorage.removeItem("sushi-house-cart-v2");
       localStorage.removeItem("sushi-house-cart-v3");
-      localStorage.setItem("sushi-house-cart-schema", "11");
+      localStorage.setItem("sushi-house-cart-schema", "13");
       setCart([]);
     } else {
       const saved = localStorage.getItem("sushi-house-cart-v3");
