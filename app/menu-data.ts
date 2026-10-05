@@ -75,7 +75,7 @@ export const products: Product[] = [
   p(
     3,
     "Ofertas",
-    "Combo Individual Festival",
+    "Combo Individual",
     "12 peças, 5 hot rolls, molho tarê e Coca-Cola lata.",
     24.89,
     29.9,
