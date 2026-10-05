@@ -187,7 +187,7 @@ export const products: Product[] = [
   p(
     60,
     "Noodles e Lámen",
-    "Trio Yakisoba Degustação",
+    "Trio Yakisoba",
     "Três porções para compartilhar: yakisoba misto, frango e legumes.",
     49.89,
     64.9,
