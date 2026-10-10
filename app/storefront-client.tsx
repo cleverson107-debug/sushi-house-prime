@@ -247,7 +247,6 @@ export default function Home() {
   const [openUpsell, setOpenUpsell] = useState<string | null>(null);
   const [location, setLocation] = useState("Sua região");
   const [locating, setLocating] = useState(false);
-  const [showLocationPrompt, setShowLocationPrompt] = useState(true);
   const [menuReady, setMenuReady] = useState(false);
   useEffect(() => {
     const revealMenu = () => setMenuReady(true);
@@ -378,48 +377,6 @@ export default function Home() {
   };
   return (
     <div className="storefront min-h-screen bg-white pb-28 text-[#271b19]">
-      {showLocationPrompt && (
-        <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/45 p-4 sm:items-center">
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="location-prompt-title"
-            className="w-full max-w-md rounded-[24px] bg-white p-6 shadow-2xl"
-          >
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#fff0ed] text-[#f25445]">
-              <MapPin className="h-6 w-6" aria-hidden="true" />
-            </div>
-            <h2
-              id="location-prompt-title"
-              className="font-serif text-2xl font-extrabold text-[#271b19]"
-            >
-              Entrega grátis na sua região
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-[#746461]">
-              Permita o acesso à sua localização para verificarmos se a entrega
-              grátis está disponível no seu endereço. Dependendo da região,
-              poderão existir custos adicionais.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                setShowLocationPrompt(false);
-                void locate();
-              }}
-              className="mt-5 w-full rounded-2xl bg-[#f25445] px-5 py-3.5 text-sm font-extrabold text-white shadow-sm transition hover:bg-[#db4438]"
-            >
-              Verificar localização
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowLocationPrompt(false)}
-              className="mt-2 w-full rounded-2xl px-5 py-3 text-sm font-bold text-[#746461]"
-            >
-              Agora não
-            </button>
-          </div>
-        </div>
-      )}
       <header className="overflow-hidden bg-[#24100e] text-white shadow-sm">
         <div className="mx-auto max-w-5xl px-4 pt-4 sm:px-6">
           <button
