@@ -24,6 +24,12 @@ import {
   trackMetaEvent,
 } from "./meta-pixel";
 
+declare global {
+  interface Window {
+    __sushiLocationLabel?: string;
+  }
+}
+
 const Dialog = dynamic(() =>
   import("@/components/ui/dialog").then((module) => module.Dialog),
 );
@@ -220,6 +226,14 @@ export default function Home() {
   }, [cart, cartReady]);
   useEffect(() => {
     const controller = new AbortController();
+    const applyLocation = (label: string) => {
+      if (label) setLocation(label);
+    };
+    const handleLocation = (event: Event) =>
+      applyLocation((event as CustomEvent<string>).detail);
+    window.addEventListener("sushi:location", handleLocation);
+    if (window.__sushiLocationLabel)
+      applyLocation(window.__sushiLocationLabel);
     const detectLocation = async () => {
       setLocating(true);
       try {
@@ -238,9 +252,9 @@ export default function Home() {
         if (!controller.signal.aborted) setLocating(false);
       }
     };
-    const timer = window.setTimeout(detectLocation, 150);
+    detectLocation();
     return () => {
-      window.clearTimeout(timer);
+      window.removeEventListener("sushi:location", handleLocation);
       controller.abort();
     };
   }, []);
@@ -326,7 +340,7 @@ export default function Home() {
             <MapPin
               className={`size-4 text-[#ff5a43] ${locating ? "animate-pulse" : ""}`}
             />
-            <span>
+            <span data-location-label suppressHydrationWarning>
               {locating ? "Localizando…" : location}
             </span>
           </button>
@@ -660,7 +674,12 @@ export default function Home() {
           <div className="mt-6 border-t border-[#3b302c] pt-6 text-xs leading-relaxed text-[#948783]">
             <p>Sushi House Prime Restaurante Ltda.</p>
             <p>CNPJ: 13.048.953/0001-18</p>
-            <p>Av. Nove de Maio, 1485 · Centro · {location}</p>
+            <p>
+              Av. Nove de Maio, 1485 · Centro ·{" "}
+              <span data-location-label suppressHydrationWarning>
+                {location}
+              </span>
+            </p>
             <p className="mt-4">
               SUSHI HOUSE PRIME | Todos os direitos reservados © 2026
             </p>
