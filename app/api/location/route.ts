@@ -11,6 +11,12 @@ type FallbackLocation = {
   region_code?: string;
 };
 
+type IpApiLocation = {
+  city?: string;
+  region_code?: string;
+  error?: boolean;
+};
+
 const visitorIp = (request: Request) => {
   const raw =
     request.headers.get("CF-Connecting-IP") ||
@@ -50,6 +56,30 @@ export async function GET(request: Request) {
         }
       } catch {
         // Mantém o resultado da Cloudflare quando o serviço auxiliar não responder.
+      }
+
+      if (!city) {
+        try {
+          const response = await fetch(
+            `https://ipapi.co/${encodeURIComponent(ip)}/json/`,
+            {
+              headers: {
+                Accept: "application/json",
+                "User-Agent": "SushiHousePrime/1.0",
+              },
+              signal: AbortSignal.timeout(2200),
+            },
+          );
+          if (response.ok) {
+            const fallback = (await response.json()) as IpApiLocation;
+            if (!fallback.error && fallback.city?.trim()) {
+              city = fallback.city.trim();
+              state = fallback.region_code?.trim().toUpperCase() || state;
+            }
+          }
+        } catch {
+          // Sem uma resposta confiável, a interface mantém o texto neutro.
+        }
       }
     }
   }

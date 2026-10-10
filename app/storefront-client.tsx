@@ -32,6 +32,7 @@ declare global {
 
 type ApproximateLocation = {
   success?: boolean;
+  error?: boolean;
   city?: string | null;
   state?: string | null;
   region_code?: string | null;
@@ -53,10 +54,13 @@ const fetchApproximateLocation = async (signal?: AbortSignal) => {
     }
   };
   const primary = await request(`/api/location?v=${Date.now()}`);
-  const data = primary?.city
+  const secondary = primary?.city
     ? primary
     : await request("https://ipwho.is/?fields=success,city,region_code");
-  if (!data?.city || data.success === false) return "";
+  const data = secondary?.city
+    ? secondary
+    : await request("https://ipapi.co/json/");
+  if (!data?.city || data.success === false || data.error) return "";
   const state = data.state || data.region_code;
   return `${data.city}${state ? `/${state}` : ""}`;
 };

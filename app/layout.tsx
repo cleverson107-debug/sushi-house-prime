@@ -11,6 +11,9 @@ const LOCATION_BOOTSTRAP = `
     .then((primary) => primary && primary.city
       ? primary
       : readJson('https://ipwho.is/?fields=success,city,region_code'))
+    .then((primary) => primary && primary.city
+      ? primary
+      : readJson('https://ipapi.co/json/'))
     .then((data) => {
       if (!data || !data.city || data.success === false) return;
       const state = data.state || data.region_code || '';
