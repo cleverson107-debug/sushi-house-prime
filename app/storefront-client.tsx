@@ -178,6 +178,16 @@ export default function Home() {
   const [openUpsell, setOpenUpsell] = useState<string | null>(null);
   const [location, setLocation] = useState("Sua região");
   const [locating, setLocating] = useState(false);
+  const [menuReady, setMenuReady] = useState(false);
+  useEffect(() => {
+    const revealMenu = () => setMenuReady(true);
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(revealMenu, { timeout: 700 });
+      return () => window.cancelIdleCallback(idleId);
+    }
+    const timer = window.setTimeout(revealMenu, 350);
+    return () => window.clearTimeout(timer);
+  }, []);
   useEffect(() => {
     localStorage.removeItem("sushi-house-cart");
     localStorage.removeItem("sushi-house-cart-v2");
@@ -323,13 +333,14 @@ export default function Home() {
           <div className="flex items-start justify-between gap-3 py-4">
             <div className="flex min-w-0 items-start gap-3">
               <div className="relative size-16 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-white shadow-sm">
-                <Image
+                <img
                   src="/sushi-house-logo-v2.webp"
                   alt="Logo Sushi House Prime"
-                  fill
-                  sizes="64px"
-                  className="object-contain p-0.5"
-                  priority
+                  width="64"
+                  height="64"
+                  className="h-full w-full object-contain p-0.5"
+                  fetchPriority="high"
+                  decoding="sync"
                 />
               </div>
               <div className="min-w-0 pt-0.5">
@@ -405,7 +416,7 @@ export default function Home() {
               alt=""
               fetchPriority="high"
               loading="eager"
-              decoding="async"
+              decoding="sync"
               className="absolute inset-0 h-full w-full object-cover object-[66%_center] sm:object-center"
               aria-hidden="true"
             />
@@ -434,7 +445,10 @@ export default function Home() {
           <Search className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-[#8b817e]" />
           <input
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setMenuReady(true);
+              setQuery(e.target.value);
+            }}
             className="h-13 w-full rounded-xl border border-[#e9e3df] bg-[#faf8f6] pl-12 pr-4 text-base text-[#271b19] outline-none placeholder:text-[#928985] focus:border-[#f15a46]/70"
             placeholder="O que você quer comer hoje?"
           />
@@ -445,6 +459,7 @@ export default function Home() {
               <a
                 key={c}
                 href={`#${c}`}
+                onClick={() => setMenuReady(true)}
                 className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold ${i === 0 ? "bg-[#f15a46] text-white" : "bg-[#f3efec] text-[#4d403c]"}`}
               >
                 {c}
@@ -453,6 +468,7 @@ export default function Home() {
           </div>
         </nav>
         {categories.map((cat) => {
+          if (cat !== "Ofertas" && !menuReady) return null;
           const list = filtered.filter(
             (p) =>
               p.category === cat ||
