@@ -17,6 +17,17 @@ type IpApiLocation = {
   error?: boolean;
 };
 
+type ReverseLocation = {
+  address?: {
+    city?: string;
+    town?: string;
+    municipality?: string;
+    village?: string;
+    state?: string;
+    [key: string]: string | undefined;
+  };
+};
+
 const visitorIp = (request: Request) => {
   const raw =
     request.headers.get("CF-Connecting-IP") ||
@@ -27,6 +38,49 @@ const visitorIp = (request: Request) => {
 };
 
 export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const latitude = Number(url.searchParams.get("lat"));
+  const longitude = Number(url.searchParams.get("lon"));
+
+  if (
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude) &&
+    latitude >= -90 &&
+    latitude <= 90 &&
+    longitude >= -180 &&
+    longitude <= 180
+  ) {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude.toFixed(5)}&lon=${longitude.toFixed(5)}&zoom=10&addressdetails=1&accept-language=pt-BR`,
+        {
+          headers: {
+            Accept: "application/json",
+            "User-Agent": "SushiHousePrime/1.0 (sushihouseprime@outlook.com)",
+          },
+          signal: AbortSignal.timeout(3500),
+        },
+      );
+      if (response.ok) {
+        const reverse = (await response.json()) as ReverseLocation;
+        const address = reverse.address || {};
+        const city =
+          address.city ||
+          address.town ||
+          address.municipality ||
+          address.village ||
+          "";
+        const isoState = Object.entries(address).find(([key]) =>
+          key.startsWith("ISO3166-2-lvl"),
+        )?.[1];
+        const state = isoState?.split("-").pop() || address.state || "";
+        if (city) return locationResponse(city, state);
+      }
+    } catch {
+      // Se a conversão das coordenadas falhar, usa a localização aproximada.
+    }
+  }
+
   const cf = (request as Request & { cf?: CloudflareLocation }).cf;
   let city = typeof cf?.city === "string" ? cf.city.trim() : "";
   let state =
@@ -84,7 +138,11 @@ export async function GET(request: Request) {
     }
   }
 
-  return Response.json(
+  return locationResponse(city, state);
+}
+
+const locationResponse = (city: string, state: string) =>
+  Response.json(
     { city: city || null, state: state || null },
     {
       headers: {
@@ -94,4 +152,3 @@ export async function GET(request: Request) {
       },
     },
   );
-}

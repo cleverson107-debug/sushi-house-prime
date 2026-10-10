@@ -65,6 +65,34 @@ const fetchApproximateLocation = async (signal?: AbortSignal) => {
   return `${data.city}${state ? `/${state}` : ""}`;
 };
 
+const fetchPreciseLocation = () =>
+  new Promise<string>((resolve) => {
+    if (!("geolocation" in navigator)) return resolve("");
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        try {
+          const params = new URLSearchParams({
+            lat: String(coords.latitude),
+            lon: String(coords.longitude),
+          });
+          const response = await fetch(`/api/location?${params}`, {
+            cache: "no-store",
+            credentials: "omit",
+          });
+          const data = response.ok
+            ? ((await response.json()) as ApproximateLocation)
+            : null;
+          const state = data?.state || data?.region_code;
+          resolve(data?.city ? `${data.city}${state ? `/${state}` : ""}` : "");
+        } catch {
+          resolve("");
+        }
+      },
+      () => resolve(""),
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
+    );
+  });
+
 const Dialog = dynamic(() =>
   import("@/components/ui/dialog").then((module) => module.Dialog),
 );
@@ -271,10 +299,15 @@ export default function Home() {
       applyLocation(window.__sushiLocationLabel);
     const detectLocation = async () => {
       setLocating(true);
-      const label = await fetchApproximateLocation(controller.signal);
-      if (!controller.signal.aborted && label) {
-        window.__sushiLocationLabel = label;
-        setLocation(label);
+      const approximateLabel = await fetchApproximateLocation(controller.signal);
+      if (!controller.signal.aborted && approximateLabel) {
+        window.__sushiLocationLabel = approximateLabel;
+        setLocation(approximateLabel);
+      }
+      const preciseLabel = await fetchPreciseLocation();
+      if (!controller.signal.aborted && preciseLabel) {
+        window.__sushiLocationLabel = preciseLabel;
+        setLocation(preciseLabel);
       }
       if (!controller.signal.aborted) setLocating(false);
     };
@@ -286,7 +319,8 @@ export default function Home() {
   }, []);
   const locate = async () => {
     setLocating(true);
-    const label = await fetchApproximateLocation();
+    const preciseLabel = await fetchPreciseLocation();
+    const label = preciseLabel || (await fetchApproximateLocation());
     if (label) {
       window.__sushiLocationLabel = label;
       setLocation(label);
