@@ -1,7 +1,8 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import {
   ChevronRight,
   Clock3,
@@ -12,25 +13,9 @@ import {
   Search,
   ShoppingBag,
   Star,
-  Store,
   Trash2,
-  Truck,
   X,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { categories, money, products, type Product } from "./menu-data";
 import {
@@ -38,6 +23,37 @@ import {
   getMetaBrowserContext,
   trackMetaEvent,
 } from "./meta-pixel";
+
+const Dialog = dynamic(() =>
+  import("@/components/ui/dialog").then((module) => module.Dialog),
+);
+const DialogContent = dynamic(() =>
+  import("@/components/ui/dialog").then((module) => module.DialogContent),
+);
+const DialogDescription = dynamic(() =>
+  import("@/components/ui/dialog").then((module) => module.DialogDescription),
+);
+const DialogHeader = dynamic(() =>
+  import("@/components/ui/dialog").then((module) => module.DialogHeader),
+);
+const DialogTitle = dynamic(() =>
+  import("@/components/ui/dialog").then((module) => module.DialogTitle),
+);
+const Sheet = dynamic(() =>
+  import("@/components/ui/sheet").then((module) => module.Sheet),
+);
+const SheetContent = dynamic(() =>
+  import("@/components/ui/sheet").then((module) => module.SheetContent),
+);
+const SheetDescription = dynamic(() =>
+  import("@/components/ui/sheet").then((module) => module.SheetDescription),
+);
+const SheetHeader = dynamic(() =>
+  import("@/components/ui/sheet").then((module) => module.SheetHeader),
+);
+const SheetTitle = dynamic(() =>
+  import("@/components/ui/sheet").then((module) => module.SheetTitle),
+);
 type CartItem = Product & {
   quantity: number;
   extras: string[];
@@ -124,15 +140,17 @@ function FoodVisual({
   const isDrink = product.category === "Bebidas";
   const imageSrc = large
     ? product.image
-    : product.image.replace("/products/optimized/", "/products/thumbs/");
+    : product.image.replace("/products/optimized/", "/products/thumbs-v2/");
   return (
     <div
       className={`relative shrink-0 overflow-hidden ${isDrink ? "bg-white" : "bg-[#eee8e4]"} ${large ? "h-60 w-full rounded-2xl sm:h-72" : "h-28 w-28 rounded-xl sm:h-32 sm:w-36"}`}
     >
       {isDrink ? (
-        <img
+        <Image
           src={imageSrc}
           alt={product.name}
+          fill
+          sizes={large ? "(max-width: 640px) 100vw, 576px" : "144px"}
           className="h-full w-full object-contain p-2 transition duration-500 group-hover:scale-[1.03] sm:p-3"
         />
       ) : (
@@ -158,28 +176,31 @@ export default function Home() {
   const [cartOpen, setCartOpen] = useState(false);
   const [checkout, setCheckout] = useState(false);
   const [openUpsell, setOpenUpsell] = useState<string | null>(null);
-  const [location, setLocation] = useState("Localização não definida");
+  const [location, setLocation] = useState("Sua região");
   const [locating, setLocating] = useState(false);
   useEffect(() => {
+    let initialCart: CartItem[] = [];
     const schema = localStorage.getItem("sushi-house-cart-schema");
     if (schema !== "15") {
       localStorage.removeItem("sushi-house-cart");
       localStorage.removeItem("sushi-house-cart-v2");
       localStorage.removeItem("sushi-house-cart-v3");
       localStorage.setItem("sushi-house-cart-schema", "15");
-      setCart([]);
     } else {
       const saved = localStorage.getItem("sushi-house-cart-v3");
       if (saved) {
         try {
-          setCart(JSON.parse(saved));
+          initialCart = JSON.parse(saved);
         } catch {
           localStorage.removeItem("sushi-house-cart-v3");
-          setCart([]);
         }
       }
     }
-    setCartReady(true);
+    const timer = window.setTimeout(() => {
+      setCart(initialCart);
+      setCartReady(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
   useEffect(() => {
     if (cartReady)
@@ -200,14 +221,16 @@ export default function Home() {
         if (data.city)
           setLocation(`${data.city}${data.state ? `/${data.state}` : ""}`);
       } catch (error) {
-        if ((error as Error).name !== "AbortError")
-          setLocation("Localização não definida");
+        if ((error as Error).name !== "AbortError") setLocation("Sua região");
       } finally {
         if (!controller.signal.aborted) setLocating(false);
       }
     };
-    detectLocation();
-    return () => controller.abort();
+    const timer = window.setTimeout(detectLocation, 150);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
   }, []);
   const locate = async () => {
     setLocating(true);
@@ -292,18 +315,14 @@ export default function Home() {
               className={`size-4 text-[#ff5a43] ${locating ? "animate-pulse" : ""}`}
             />
             <span>
-              {locating
-                ? "Localizando…"
-                : location === "Localização não definida"
-                  ? "Sua região"
-                  : location}
+              {locating ? "Localizando…" : location}
             </span>
           </button>
           <div className="flex items-start justify-between gap-3 py-4">
             <div className="flex min-w-0 items-start gap-3">
               <div className="relative size-16 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-white shadow-sm">
                 <Image
-                  src="/sushi-house-logo.webp"
+                  src="/sushi-house-logo-v2.webp"
                   alt="Logo Sushi House Prime"
                   fill
                   sizes="64px"
@@ -374,15 +393,21 @@ export default function Home() {
       </header>
       <main className="mx-auto max-w-5xl px-4 sm:px-6">
         <section className="relative my-5 flex min-h-[260px] w-full items-center overflow-hidden rounded-[1.4rem] border border-[#a92a21]/25 px-5 py-7 shadow-[0_12px_35px_rgba(70,20,12,.18)] sm:min-h-[330px] sm:px-8 sm:py-9">
-          <img
-            src="/festival-inauguracao.webp"
-            alt=""
-            fetchPriority="high"
-            loading="eager"
-            decoding="async"
-            className="absolute inset-0 h-full w-full object-cover object-[66%_center] sm:object-center"
-            aria-hidden="true"
-          />
+          <picture>
+            <source
+              media="(max-width: 640px)"
+              srcSet="/festival-inauguracao-mobile.webp"
+            />
+            <img
+              src="/festival-inauguracao-v2.webp"
+              alt=""
+              fetchPriority="high"
+              loading="eager"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover object-[66%_center] sm:object-center"
+              aria-hidden="true"
+            />
+          </picture>
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(24,5,4,.96)_0%,rgba(40,9,7,.84)_43%,rgba(40,9,7,.18)_72%,rgba(40,9,7,.04)_100%)]" />
           <div className="relative z-10 w-full max-w-[72%] sm:max-w-xl">
             <h1 className="whitespace-nowrap font-serif text-[clamp(1.25rem,5.2vw,2.5rem)] font-bold leading-none tracking-[-.025em] text-white drop-shadow-sm">
@@ -643,7 +668,7 @@ export default function Home() {
           <b>{money(total)}</b>
         </button>
       )}
-      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+      {selected && <Dialog open onOpenChange={(o) => !o && setSelected(null)}>
         <DialogContent className="max-h-[94vh] overflow-y-auto border-[#e9e3df] bg-white p-0 text-[#271b19] sm:max-w-xl">
           <div className="sticky top-0 z-20 flex items-center justify-between border-b border-[#eee8e4] bg-white/95 px-4 py-2 backdrop-blur sm:px-5">
             <span className="text-sm font-extrabold">Detalhes do produto</span>
@@ -763,8 +788,8 @@ export default function Home() {
             </div>
           )}
         </DialogContent>
-      </Dialog>
-      <Sheet open={cartOpen} onOpenChange={setCartOpen}>
+      </Dialog>}
+      {cartOpen && <Sheet open onOpenChange={setCartOpen}>
         <SheetContent
           side="right"
           className="w-full !border-[#e7ded9] !bg-[#faf8f6] !text-[#271b19] sm:max-w-md"
@@ -895,13 +920,14 @@ export default function Home() {
                                       key={product.id}
                                       className="flex items-center gap-3 rounded-lg border border-[#e8dfda] bg-white p-2 shadow-sm"
                                     >
-                                      <img
+                                      <Image
                                         src={product.image.replace(
                                           "/products/optimized/",
-                                          "/products/thumbs/",
+                                          "/products/thumbs-v2/",
                                         )}
                                         alt=""
-                                        loading="lazy"
+                                        width={48}
+                                        height={48}
                                         className={`size-12 shrink-0 rounded-lg bg-white ${product.category === "Bebidas" ? "object-contain p-1" : "object-cover"}`}
                                       />
                                       <span className="min-w-0 flex-1">
@@ -983,7 +1009,7 @@ export default function Home() {
             )}
           </div>
         </SheetContent>
-      </Sheet>
+      </Sheet>}
     </div>
   );
 }
@@ -1104,13 +1130,13 @@ function Checkout({
   const [copyStatus, setCopyStatus] = useState<"" | "success" | "error">("");
   const [qrImage, setQrImage] = useState("");
   const [paidAt, setPaidAt] = useState("");
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
   const [cep, setCep] = useState("");
   const [street, setStreet] = useState("");
   const [neighborhood, setNeighborhood] = useState("");
   const [city, setCity] = useState("");
   const [uf, setUf] = useState("");
-  const [cepStatus, setCepStatus] = useState("");
+  const cepLookupController = useRef<AbortController | null>(null);
   useEffect(() => {
     const cartSignature = cart
       .map((item) => `${item.id}:${item.quantity}`)
@@ -1138,10 +1164,7 @@ function Checkout({
     sessionStorage.setItem(storageKey, eventId);
   }, [cart, pixTotal]);
   useEffect(() => {
-    if (!pix?.copyPaste || pix.qrImage) {
-      setQrImage(pix?.qrImage || "");
-      return;
-    }
+    if (!pix?.copyPaste || pix.qrImage) return;
     import("qrcode")
       .then(({ default: QRCode }) =>
         QRCode.toDataURL(pix.copyPaste, { width: 320, margin: 1 }),
@@ -1210,37 +1233,27 @@ function Checkout({
     setCep(
       digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits,
     );
-    if (digits.length !== 8) {
-      setCepStatus("");
-      return;
-    }
-    setCepStatus("Buscando endereço…");
+    cepLookupController.current?.abort();
+    if (digits.length !== 8) return;
+    setStreet("");
+    setNeighborhood("");
+    setCity("");
+    setUf("");
+    const controller = new AbortController();
+    cepLookupController.current = controller;
     try {
-      const response = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+      const response = await fetch(`https://viacep.com.br/ws/${digits}/json/`, {
+        cache: "no-store",
+        signal: controller.signal,
+      });
       if (!response.ok) throw new Error("Falha na consulta");
       const data = await response.json();
-      if (data.erro) {
-        setCepStatus("CEP não encontrado. Verifique os números.");
-        setStreet("");
-        setNeighborhood("");
-        setCity("");
-        setUf("");
-        return;
-      }
+      if (data.erro || controller.signal.aborted) return;
       setStreet(data.logradouro || "");
       setNeighborhood(data.bairro || "");
       setCity(data.localidade || "");
       setUf(data.uf || "");
-      setCepStatus(
-        data.logradouro
-          ? "Endereço encontrado. Confira e informe o número."
-          : "Cidade encontrada. Complete a rua e o número.",
-      );
-    } catch {
-      setCepStatus(
-        "Não foi possível consultar agora. Preencha o endereço manualmente.",
-      );
-    }
+    } catch {}
   };
   if (paidAt) {
     const elapsed = now - new Date(paidAt).getTime();
@@ -1295,9 +1308,11 @@ function Checkout({
                 key={`${item.id}-${index}`}
                 className="flex items-center gap-3 rounded-xl bg-white p-2 shadow-sm"
               >
-                <img
+                <Image
                   src={item.image}
                   alt={item.name}
+                  width={64}
+                  height={64}
                   className="size-16 shrink-0 rounded-lg bg-white object-cover"
                 />
                 <div className="min-w-0 flex-1">
@@ -1377,9 +1392,9 @@ function Checkout({
         <p className="mt-2 text-sm text-[#93a0a6]">
           Escaneie o QR Code ou copie o código abaixo.
         </p>
-        {qrImage ? (
+        {pix.qrImage || qrImage ? (
           <img
-            src={qrImage}
+            src={pix.qrImage || qrImage}
             alt="QR Code PIX"
             className="mx-auto mt-5 size-64 rounded-xl bg-white p-3"
           />
@@ -1527,13 +1542,6 @@ function Checkout({
               onChange={(e) => lookupCep(e.target.value)}
               className="field"
             />
-            {cepStatus && (
-              <p
-                className={`mt-1.5 text-xs ${cepStatus.includes("encontrado") || cepStatus.includes("encontrada") ? "text-emerald-700" : "text-[#766b67]"}`}
-              >
-                {cepStatus}
-              </p>
-            )}
           </div>
           <input
             required

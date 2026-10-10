@@ -17,6 +17,12 @@ export async function GET(request: Request) {
 
   return Response.json(
     { city: city || null, state: state || null },
-    { headers: { "Cache-Control": "private, no-store" } },
+    {
+      headers: {
+        "Cache-Control": "private, no-store, max-age=0",
+        "CDN-Cache-Control": "no-store",
+        "Cloudflare-CDN-Cache-Control": "no-store",
+      },
+    },
   );
 }

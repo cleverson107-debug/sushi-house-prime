@@ -86,11 +86,29 @@ export function MetaPixel() {
       fbq.version = "2.0";
       window.fbq = fbq;
       window._fbq = fbq;
-      const script = document.createElement("script");
-      script.async = true;
-      script.src = "https://connect.facebook.net/en_US/fbevents.js";
-      document.head.appendChild(script);
       fbq("init", META_PIXEL_ID);
+      let loaded = false;
+      const loadPixel = () => {
+        if (loaded) return;
+        loaded = true;
+        const script = document.createElement("script");
+        script.async = true;
+        script.src = "https://connect.facebook.net/en_US/fbevents.js";
+        document.head.appendChild(script);
+        window.removeEventListener("pointerdown", loadPixel);
+        window.removeEventListener("keydown", loadPixel);
+        window.removeEventListener("scroll", loadPixel);
+      };
+      window.addEventListener("pointerdown", loadPixel, {
+        once: true,
+        passive: true,
+      });
+      window.addEventListener("keydown", loadPixel, { once: true });
+      window.addEventListener("scroll", loadPixel, {
+        once: true,
+        passive: true,
+      });
+      window.setTimeout(loadPixel, 10_000);
     }
 
     persistentFbc();

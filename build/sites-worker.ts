@@ -2,8 +2,10 @@ import handler from "vinext/server/fetch-handler";
 import { runWithConnectorBinding } from "../lib/connector-context";
 import type { ConnectorBinding } from "../lib/connector-contract.mjs";
 
+const STOREFRONT_CACHE_VERSION = "2026-10-10-location-performance-v3";
+
 export default {
-  fetch(request: Request, env: Cloudflare.Env, ctx: ExecutionContext<{ CONNECTORS?: ConnectorBinding }>) {
+  async fetch(request: Request, env: Cloudflare.Env, ctx: ExecutionContext<{ CONNECTORS?: ConnectorBinding }>) {
     let binding = ctx.props?.CONNECTORS;
     // Local preview emulates the same request-scoped capability. This branch and
     // the auxiliary service binding are absent from production builds.
@@ -23,6 +25,54 @@ export default {
         },
       };
     }
-    return runWithConnectorBinding(binding, () => handler.fetch(request, env, ctx));
+    const url = new URL(request.url);
+    const acceptsHtml = request.headers.get("accept")?.includes("text/html");
+    const isPublicStorefront =
+      request.method === "GET" &&
+      url.pathname === "/" &&
+      acceptsHtml &&
+      !request.headers.has("RSC") &&
+      !request.headers.has("Next-Router-State-Tree");
+
+    if (!isPublicStorefront)
+      return runWithConnectorBinding(binding, () =>
+        handler.fetch(request, env, ctx),
+      );
+
+    const cacheUrl = new URL(request.url);
+    cacheUrl.search = `?shell=${STOREFRONT_CACHE_VERSION}`;
+    const cacheKey = new Request(cacheUrl, {
+      method: "GET",
+      headers: { accept: "text/html" },
+    });
+    const cached = await caches.default.match(cacheKey);
+    if (cached) {
+      const headers = new Headers(cached.headers);
+      headers.set("X-Storefront-Cache", "HIT");
+      return new Response(cached.body, {
+        status: cached.status,
+        statusText: cached.statusText,
+        headers,
+      });
+    }
+
+    const response = await runWithConnectorBinding(binding, () =>
+      handler.fetch(request, env, ctx),
+    );
+    if (!response.ok) return response;
+
+    const headers = new Headers(response.headers);
+    headers.set(
+      "Cache-Control",
+      "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800",
+    );
+    headers.set("X-Storefront-Cache", "MISS");
+    const cacheable = new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    });
+    ctx.waitUntil(caches.default.put(cacheKey, cacheable.clone()));
+    return cacheable;
   },
 };
