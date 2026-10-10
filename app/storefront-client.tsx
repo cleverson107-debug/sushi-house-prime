@@ -179,20 +179,22 @@ export default function Home() {
   const [location, setLocation] = useState("Sua região");
   const [locating, setLocating] = useState(false);
   useEffect(() => {
+    localStorage.removeItem("sushi-house-cart");
+    localStorage.removeItem("sushi-house-cart-v2");
+    localStorage.removeItem("sushi-house-cart-v3");
+    localStorage.removeItem("sushi-house-cart-schema");
     let initialCart: CartItem[] = [];
-    const schema = localStorage.getItem("sushi-house-cart-schema");
+    const schema = sessionStorage.getItem("sushi-house-cart-schema");
     if (schema !== "15") {
-      localStorage.removeItem("sushi-house-cart");
-      localStorage.removeItem("sushi-house-cart-v2");
-      localStorage.removeItem("sushi-house-cart-v3");
-      localStorage.setItem("sushi-house-cart-schema", "15");
+      sessionStorage.removeItem("sushi-house-cart-v3");
+      sessionStorage.setItem("sushi-house-cart-schema", "15");
     } else {
-      const saved = localStorage.getItem("sushi-house-cart-v3");
+      const saved = sessionStorage.getItem("sushi-house-cart-v3");
       if (saved) {
         try {
           initialCart = JSON.parse(saved);
         } catch {
-          localStorage.removeItem("sushi-house-cart-v3");
+          sessionStorage.removeItem("sushi-house-cart-v3");
         }
       }
     }
@@ -204,7 +206,7 @@ export default function Home() {
   }, []);
   useEffect(() => {
     if (cartReady)
-      localStorage.setItem("sushi-house-cart-v3", JSON.stringify(cart));
+      sessionStorage.setItem("sushi-house-cart-v3", JSON.stringify(cart));
   }, [cart, cartReady]);
   useEffect(() => {
     const controller = new AbortController();
