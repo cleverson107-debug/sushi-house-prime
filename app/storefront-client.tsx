@@ -247,11 +247,8 @@ export default function Home() {
   const [openUpsell, setOpenUpsell] = useState<string | null>(null);
   const [location, setLocation] = useState("Sua região");
   const [locating, setLocating] = useState(false);
-  const [showLocationPrompt, setShowLocationPrompt] = useState(false);
+  const [showLocationPrompt, setShowLocationPrompt] = useState(true);
   const [menuReady, setMenuReady] = useState(false);
-  useEffect(() => {
-    setShowLocationPrompt(true);
-  }, []);
   useEffect(() => {
     const revealMenu = () => setMenuReady(true);
     if ("requestIdleCallback" in window) {
