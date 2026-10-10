@@ -30,6 +30,37 @@ declare global {
   }
 }
 
+type ApproximateLocation = {
+  success?: boolean;
+  city?: string | null;
+  state?: string | null;
+  region_code?: string | null;
+};
+
+const fetchApproximateLocation = async (signal?: AbortSignal) => {
+  const request = async (url: string) => {
+    try {
+      const response = await fetch(url, {
+        cache: "no-store",
+        credentials: "omit",
+        signal,
+      });
+      return response.ok
+        ? ((await response.json()) as ApproximateLocation)
+        : null;
+    } catch {
+      return null;
+    }
+  };
+  const primary = await request(`/api/location?v=${Date.now()}`);
+  const data = primary?.city
+    ? primary
+    : await request("https://ipwho.is/?fields=success,city,region_code");
+  if (!data?.city || data.success === false) return "";
+  const state = data.state || data.region_code;
+  return `${data.city}${state ? `/${state}` : ""}`;
+};
+
 const Dialog = dynamic(() =>
   import("@/components/ui/dialog").then((module) => module.Dialog),
 );
@@ -236,21 +267,12 @@ export default function Home() {
       applyLocation(window.__sushiLocationLabel);
     const detectLocation = async () => {
       setLocating(true);
-      try {
-        const response = await fetch("/api/location", {
-          cache: "no-store",
-          signal: controller.signal,
-        });
-        if (!response.ok) throw new Error("Localização indisponível");
-        const data: { city: string | null; state: string | null } =
-          await response.json();
-        if (data.city)
-          setLocation(`${data.city}${data.state ? `/${data.state}` : ""}`);
-      } catch (error) {
-        if ((error as Error).name !== "AbortError") setLocation("Sua região");
-      } finally {
-        if (!controller.signal.aborted) setLocating(false);
+      const label = await fetchApproximateLocation(controller.signal);
+      if (!controller.signal.aborted && label) {
+        window.__sushiLocationLabel = label;
+        setLocation(label);
       }
+      if (!controller.signal.aborted) setLocating(false);
     };
     detectLocation();
     return () => {
@@ -260,21 +282,12 @@ export default function Home() {
   }, []);
   const locate = async () => {
     setLocating(true);
-    try {
-      const response = await fetch("/api/location", { cache: "no-store" });
-      if (!response.ok) throw new Error("Localização indisponível");
-      const data: { city: string | null; state: string | null } =
-        await response.json();
-      setLocation(
-        data.city
-          ? `${data.city}${data.state ? `/${data.state}` : ""}`
-          : "Sua região",
-      );
-    } catch {
-      setLocation("Sua região");
-    } finally {
-      setLocating(false);
+    const label = await fetchApproximateLocation();
+    if (label) {
+      window.__sushiLocationLabel = label;
+      setLocation(label);
     }
+    setLocating(false);
   };
   const filtered = useMemo(
     () =>

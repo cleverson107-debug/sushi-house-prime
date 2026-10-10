@@ -4,11 +4,17 @@ import { MetaPixel } from "./meta-pixel";
 const META_PIXEL_ID = "1442564798019869";
 const LOCATION_BOOTSTRAP = `
 (() => {
-  fetch('/api/location', { cache: 'no-store', credentials: 'omit' })
+  const readJson = (url) => fetch(url, { cache: 'no-store', credentials: 'omit' })
     .then((response) => response.ok ? response.json() : null)
+    .catch(() => null);
+  readJson('/api/location?v=' + Date.now())
+    .then((primary) => primary && primary.city
+      ? primary
+      : readJson('https://ipwho.is/?fields=success,city,region_code'))
     .then((data) => {
-      if (!data || !data.city) return;
-      const label = data.city + (data.state ? '/' + data.state : '');
+      if (!data || !data.city || data.success === false) return;
+      const state = data.state || data.region_code || '';
+      const label = data.city + (state ? '/' + state : '');
       window.__sushiLocationLabel = label;
       document.querySelectorAll('[data-location-label]').forEach((node) => {
         node.textContent = label;
