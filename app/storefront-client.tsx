@@ -453,7 +453,11 @@ export default function Home() {
           </div>
         </nav>
         {categories.map((cat) => {
-          const list = filtered.filter((p) => p.category === cat);
+          const list = filtered.filter(
+            (p) =>
+              p.category === cat ||
+              (cat === "Ofertas" && (p.id === 61 || p.id === 64)),
+          );
           if (!list.length) return null;
           return (
             <section
