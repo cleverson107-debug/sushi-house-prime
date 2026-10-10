@@ -250,6 +250,9 @@ export default function Home() {
   const [showLocationPrompt, setShowLocationPrompt] = useState(false);
   const [menuReady, setMenuReady] = useState(false);
   useEffect(() => {
+    setShowLocationPrompt(true);
+  }, []);
+  useEffect(() => {
     const revealMenu = () => setMenuReady(true);
     if ("requestIdleCallback" in window) {
       const idleId = window.requestIdleCallback(revealMenu, { timeout: 700 });
@@ -305,7 +308,6 @@ export default function Home() {
         window.__sushiLocationLabel = approximateLabel;
         setLocation(approximateLabel);
       }
-      if (!controller.signal.aborted) setShowLocationPrompt(true);
       if (!controller.signal.aborted) setLocating(false);
     };
     detectLocation();
