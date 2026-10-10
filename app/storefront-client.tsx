@@ -305,22 +305,7 @@ export default function Home() {
         window.__sushiLocationLabel = approximateLabel;
         setLocation(approximateLabel);
       }
-      try {
-        const permission = await navigator.permissions?.query({
-          name: "geolocation",
-        });
-        if (permission?.state === "granted") {
-          const preciseLabel = await fetchPreciseLocation();
-          if (!controller.signal.aborted && preciseLabel) {
-            window.__sushiLocationLabel = preciseLabel;
-            setLocation(preciseLabel);
-          }
-        } else if (permission?.state !== "denied") {
-          if (!controller.signal.aborted) setShowLocationPrompt(true);
-        }
-      } catch {
-        if (!controller.signal.aborted) setShowLocationPrompt(true);
-      }
+      if (!controller.signal.aborted) setShowLocationPrompt(true);
       if (!controller.signal.aborted) setLocating(false);
     };
     detectLocation();
