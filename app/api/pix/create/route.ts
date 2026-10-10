@@ -4,6 +4,12 @@ const API_URL = "https://api-gateway.umbrellapag.com/api/user/transactions";
 
 type CheckoutItem = { id: number; quantity: number };
 type Customer = Record<string, string>;
+type MetaTracking = {
+  fbp?: string;
+  fbc?: string;
+  eventSourceUrl?: string;
+  clientUserAgent?: string;
+};
 
 function findString(value: unknown, keys: RegExp): string {
   if (!value || typeof value !== "object") return "";
@@ -32,6 +38,7 @@ export async function POST(request: Request) {
       customer?: Customer;
       mode?: string;
       coupon?: string;
+      tracking?: MetaTracking;
     };
     const customer = body.customer || {};
     const requestedItems = Array.isArray(body.items)
@@ -109,6 +116,12 @@ export async function POST(request: Request) {
       request.headers.get("x-forwarded-for")?.split(",")[0] ||
       "127.0.0.1";
     const origin = new URL(request.url).origin;
+    const tracking = body.tracking || {};
+    const eventSourceUrl = String(tracking.eventSourceUrl || origin).startsWith(
+      origin,
+    )
+      ? String(tracking.eventSourceUrl || origin).slice(0, 500)
+      : origin;
     const payload = {
       amount,
       currency: "BRL",
@@ -133,6 +146,25 @@ export async function POST(request: Request) {
         coupon: discount ? couponCode : null,
         cartItems: items,
         fulfillment: body.mode || "delivery",
+        meta: {
+          eventId: `purchase_${externalRef}`,
+          eventSourceUrl,
+          fbp: String(tracking.fbp || "").slice(0, 250),
+          fbc: String(tracking.fbc || "").slice(0, 500),
+          clientUserAgent: String(
+            tracking.clientUserAgent || request.headers.get("user-agent") || "",
+          ).slice(0, 500),
+          clientIp,
+          customer: {
+            name: String(customer.name || "").slice(0, 150),
+            email: String(customer.email || "").slice(0, 254),
+            phone: cleanPhone,
+            city: String(address.city || "").slice(0, 100),
+            state: String(address.state || "").slice(0, 2),
+            zipCode: cleanZip,
+            country: "br",
+          },
+        },
       }),
       traceable: true,
       ip: clientIp,
@@ -195,6 +227,7 @@ export async function POST(request: Request) {
         copyPaste,
         qrImage: qrImage || undefined,
         status: String(data.status || "WAITING_PAYMENT"),
+        purchaseEventId: `purchase_${transactionId}`,
       },
       { headers: { "Cache-Control": "no-store" } },
     );

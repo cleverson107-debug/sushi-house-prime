@@ -33,6 +33,11 @@ import {
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { categories, money, products, type Product } from "./menu-data";
+import {
+  createMetaEventId,
+  getMetaBrowserContext,
+  trackMetaEvent,
+} from "./meta-pixel";
 type CartItem = Product & {
   quantity: number;
   extras: string[];
@@ -1075,6 +1080,7 @@ type PixCheckout = {
   copyPaste: string;
   qrImage?: string;
   status: string;
+  purchaseEventId?: string;
 };
 
 function Checkout({
@@ -1105,6 +1111,32 @@ function Checkout({
   const [city, setCity] = useState("");
   const [uf, setUf] = useState("");
   const [cepStatus, setCepStatus] = useState("");
+  useEffect(() => {
+    const cartSignature = cart
+      .map((item) => `${item.id}:${item.quantity}`)
+      .sort()
+      .join(",");
+    const storageKey = `meta-checkout:${cartSignature}:${pixTotal.toFixed(2)}`;
+    if (sessionStorage.getItem(storageKey)) return;
+    const eventId = createMetaEventId("checkout");
+    trackMetaEvent(
+      "InitiateCheckout",
+      {
+        currency: "BRL",
+        value: Number(pixTotal.toFixed(2)),
+        content_type: "product",
+        content_ids: cart.map((item) => String(item.id)),
+        contents: cart.map((item) => ({
+          id: String(item.id),
+          quantity: item.quantity,
+          item_price: item.price,
+        })),
+        num_items: cart.reduce((sum, item) => sum + item.quantity, 0),
+      },
+      eventId,
+    );
+    sessionStorage.setItem(storageKey, eventId);
+  }, [cart, pixTotal]);
   useEffect(() => {
     if (!pix?.copyPaste || pix.qrImage) {
       setQrImage(pix?.qrImage || "");
@@ -1139,6 +1171,30 @@ function Checkout({
     const timer = window.setInterval(() => setNow(Date.now()), 30000);
     return () => window.clearInterval(timer);
   }, [paidAt]);
+  useEffect(() => {
+    if (!paidAt || !pix) return;
+    const storageKey = `meta-purchase:${pix.transactionId}`;
+    if (localStorage.getItem(storageKey)) return;
+    const eventId = `purchase_${pix.transactionId}`;
+    trackMetaEvent(
+      "Purchase",
+      {
+        currency: "BRL",
+        value: Number(pixTotal.toFixed(2)),
+        content_type: "product",
+        content_ids: cart.map((item) => String(item.id)),
+        contents: cart.map((item) => ({
+          id: String(item.id),
+          quantity: item.quantity,
+          item_price: item.price,
+        })),
+        num_items: cart.reduce((sum, item) => sum + item.quantity, 0),
+        order_id: pix.transactionId,
+      },
+      eventId,
+    );
+    localStorage.setItem(storageKey, new Date().toISOString());
+  }, [cart, paidAt, pix, pixTotal]);
   const copyPixCode = async () => {
     if (!pix?.copyPaste) return;
     try {
@@ -1385,6 +1441,7 @@ function Checkout({
           items: cart.map(({ id, quantity }) => ({ id, quantity })),
           customer: Object.fromEntries(form.entries()),
           mode,
+          tracking: getMetaBrowserContext(),
         }),
       });
       const data = await response.json();
