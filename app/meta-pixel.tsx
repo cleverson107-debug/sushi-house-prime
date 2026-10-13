@@ -25,30 +25,20 @@ const cookieValue = (name: string) => {
   const match = document.cookie
     .split("; ")
     .find((part) => part.startsWith(`${name}=`));
-  return match ? decodeURIComponent(match.slice(name.length + 1)) : "";
-};
-
-const persistentFbc = () => {
-  if (typeof window === "undefined") return "";
-  const fromCookie = cookieValue("_fbc");
-  if (fromCookie) {
-    localStorage.setItem("meta-fbc", fromCookie);
-    return fromCookie;
-  }
-  const fbclid = new URLSearchParams(window.location.search).get("fbclid");
-  if (fbclid) {
-    const value = `fb.1.${Date.now()}.${fbclid}`;
-    localStorage.setItem("meta-fbc", value);
-    document.cookie = `_fbc=${encodeURIComponent(value)}; Max-Age=7776000; Path=/; SameSite=Lax; Secure`;
+  if (!match) return "";
+  const value = match.slice(name.length + 1);
+  try {
+    return decodeURIComponent(value);
+  } catch {
     return value;
   }
-  return localStorage.getItem("meta-fbc") || "";
 };
 
 export function getMetaBrowserContext() {
   return {
     fbp: cookieValue("_fbp"),
-    fbc: persistentFbc(),
+    // A Meta exige o valor oficial de _fbc sem reconstrução ou normalização.
+    fbc: cookieValue("_fbc"),
     eventSourceUrl:
       typeof window === "undefined" ? "" : window.location.href,
     clientUserAgent:
@@ -76,6 +66,18 @@ export function trackMetaEvent(
 
 export function MetaPixel() {
   useEffect(() => {
+    // Migração única: versões anteriores criavam _fbc manualmente a partir da
+    // URL. Removemos esse legado para o SDK oficial recriar o cookie sem alterar
+    // o fbclid. O marcador evita interferir em cookies oficiais futuros.
+    if (
+      localStorage.getItem("meta-fbc") &&
+      !localStorage.getItem("meta-fbc-official-v2")
+    ) {
+      document.cookie = "_fbc=; Max-Age=0; Path=/; SameSite=Lax; Secure";
+      localStorage.setItem("meta-fbc-official-v2", "1");
+    }
+    localStorage.removeItem("meta-fbc");
+
     if (!window.fbq) {
       const fbq = function (...args: unknown[]) {
         if (fbq.callMethod) fbq.callMethod(...args);
@@ -111,7 +113,6 @@ export function MetaPixel() {
       window.setTimeout(loadPixel, 10_000);
     }
 
-    persistentFbc();
     if (!window.__metaPageViewTracked) {
       window.__metaPageViewTracked = true;
       trackMetaEvent("PageView", {}, createMetaEventId("pageview"));

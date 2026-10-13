@@ -149,8 +149,14 @@ export async function POST(request: Request) {
         meta: {
           eventId: `purchase_${externalRef}`,
           eventSourceUrl,
-          fbp: String(tracking.fbp || "").slice(0, 250),
-          fbc: String(tracking.fbc || "").slice(0, 500),
+          fbp:
+            String(tracking.fbp || "").length <= 1000
+              ? String(tracking.fbp || "")
+              : "",
+          fbc:
+            String(tracking.fbc || "").length <= 2000
+              ? String(tracking.fbc || "")
+              : "",
           clientUserAgent: String(
             tracking.clientUserAgent || request.headers.get("user-agent") || "",
           ).slice(0, 500),

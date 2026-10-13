@@ -28,6 +28,14 @@ export type MetaPurchaseInput = {
 const normalize = (value: string) =>
   value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
 
+// fbp/fbc não são dados para hash ou normalização. A Meta exige os valores
+// exatos gerados pelo Pixel; quando o formato não é oficial, é melhor omitir.
+const validFbp = (value?: string) =>
+  value && /^fb\.\d+\.\d{13}\.\d+$/.test(value) ? value : undefined;
+
+const validFbc = (value?: string) =>
+  value && /^fb\.\d+\.\d{13}\..+$/.test(value) ? value : undefined;
+
 async function hash(value?: string, digitsOnly = false) {
   if (!value) return undefined;
   const normalized = digitsOnly ? value.replace(/\D/g, "") : normalize(value);
@@ -60,8 +68,8 @@ export async function sendMetaPurchase(input: MetaPurchaseInput) {
       zp: await hash(input.customer?.zipCode, true),
       country: await hash(input.customer?.country || "br"),
       external_id: await hash(input.orderId),
-      fbp: input.fbp || undefined,
-      fbc: input.fbc || undefined,
+      fbp: validFbp(input.fbp),
+      fbc: validFbc(input.fbc),
       client_ip_address: input.clientIpAddress || undefined,
       client_user_agent: input.clientUserAgent || undefined,
     }).filter(([, value]) => Boolean(value)),
